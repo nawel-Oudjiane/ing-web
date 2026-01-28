@@ -1,0 +1,136 @@
+/* STYLE COZY - Marron & Pège */
+* {
+    margin: 0; padding: 0; box-sizing: border-box;
+    font-family: 'Segoe UI', system-ui;
+}
+
+body {
+    background: #F5E6D3; /* Pège clair */
+    color: #5D4037; /* Marron */
+    line-height: 1.6;
+}
+
+/* NAVBAR */
+.navbar {
+    background: #5D4037; /* Marron foncé */
+    color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    margin-left: 1.5rem;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.nav-links a:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* CONTAINER */
+.container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+/* CARTES */
+.card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(139, 69, 19, 0.1);
+    border: 2px solid #D7CCC8;
+}
+
+.card h2 {
+    color: #8B4513; /* Marron chocolat */
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* FORMULAIRES */
+input, button {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 2px solid #D7CCC8;
+    font-size: 1rem;
+}
+
+input {
+    background: #F9F5F0;
+}
+
+button {
+    background: #8B4513; /* Marron foncé */
+    color: white;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #A0522D;
+    transform: translateY(-2px);
+}
+
+/* LISTE SALLES */
+#rooms-list {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+}
+
+.room-item {
+    background: #FFF8F0;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #8B4513;
+}
+
+/* ENDPOINTS */
+.endpoint {
+    background: white;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    border-radius: 8px;
+    border-left: 4px solid #8B4513;
+}
+
+.method {
+    background: #8B4513;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+/* FOOTER */
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: #795548;
+    border-top: 2px solid #D7CCC8;
+    margin-top: 3rem;
+}

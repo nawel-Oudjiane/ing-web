@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏢 Réservation Salles</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-building"></i>
+            <span>ReserveRoom</span>
+        </div>
+        <div class="nav-links">
+            <a href="/"><i class="fas fa-home"></i> Accueil</a>
+            <a href="/api"><i class="fas fa-code"></i> API</a>
+        </div>
+    </nav>
+
+    <!-- CONTENU PRINCIPAL -->
+    <div class="container">
+        <!-- INSCRIPTION -->
+        <div class="card">
+            <h2><i class="fas fa-user-plus"></i> Inscription</h2>
+            <input type="email" id="email" placeholder="Email">
+            <input type="password" id="password" placeholder="Mot de passe">
+            <button onclick="register()">S'inscrire</button>
+        </div>
+
+        <!-- SALLES -->
+        <div class="card">
+            <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
+            <div id="rooms-list">Chargement...</div>
+            <button onclick="loadRooms()">Rafraîchir</button>
+        </div>
+
+        <!-- AJOUTER SALLE -->
+        <div class="card">
+            <h2><i class="fas fa-plus-circle"></i> Ajouter une salle</h2>
+            <input type="text" id="roomName" placeholder="Nom">
+            <input type="number" id="capacity" placeholder="Capacité">
+            <button onclick="addRoom()">Ajouter</button>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Projet ING-WEB - Réservation de salles</p>
+        <p><i class="fas fa-server"></i> Node.js + Express + PostgreSQL</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
