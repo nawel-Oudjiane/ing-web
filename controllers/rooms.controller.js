@@ -1,4 +1,4 @@
-
+// controllers/rooms.controller.js
 const db = require('../config/database');
 
 // GET toutes les salles

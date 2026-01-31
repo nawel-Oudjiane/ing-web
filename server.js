@@ -15,14 +15,16 @@ app.use(express.static('public'));
 
 // Debug log
 app.use((req, res, next) => {
-  console.log(`📨 ${req.method} ${req.url}`, req.body);
+  console.log(` ${req.method} ${req.url}`, req.body);
   next();
 });
 
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/rooms', require('./routes/rooms.routes'));
-app.use('/api/users', require('./routes/users.routes')); // ✅ must export router
+app.use('/api/rooms', require('./routes/rooms.routes'));// pour importer les routes rooms
+app.use('/api/users', require('./routes/users.routes')); //pour importer les routes users
+app.use('/api/bookings', require('./routes/bookings.routes')); // pour importer les routes bookings
+app.use('/api/stats', require('./routes/stats.routes'));
 
 // Routes test
 app.get('/api', (req, res) => res.json({ message: 'API OK' }));
@@ -38,3 +40,4 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
+

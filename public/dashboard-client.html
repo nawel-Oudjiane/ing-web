@@ -6,6 +6,8 @@
     <title>Dashboard Client - Réservation Salles</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
 </head>
 <body>
 
@@ -17,12 +19,18 @@
         </div>
         <div class="nav-links">
             <a href="dashboard-client.html"><i class="fas fa-home"></i> Accueil</a>
+            <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+                    <i class="fas fa-moon"></i>
+              </button>
             <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </div>
     </nav>
+    <!-- NAVBAR -->
+
 
     <!-- CONTENU -->
     <div class="container">
+        <!-- HERO -->
         <section class="hero">
             <h1>Dashboard Client</h1>
             <p class="subtitle">Consultez et réservez vos salles facilement</p>
@@ -30,8 +38,22 @@
                 <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
             </div>
         </section>
+        <!-- AJOUTEZ APRÈS LA SECTION HERO -->
+<section class="section-card">
+    <h2><i class="fas fa-search"></i> Rechercher une salle</h2>
+    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <input type="text" id="search-room" class="form-control" placeholder="Nom de la salle..." 
+               style="flex: 1; min-width: 200px;">
+        <select id="city-filter" class="form-control" style="width: auto;">
+            <option value="">Toutes les villes</option>
+        </select>
+        <button class="btn btn-primary" onclick="filterRooms()">
+            <i class="fas fa-search"></i> Rechercher
+        </button>
+    </div>
+</section>
 
-        <!-- Liste des salles -->
+        <!-- Salles disponibles -->
         <section id="salles">
             <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
             <div id="rooms-list" class="rooms-grid">
@@ -39,26 +61,45 @@
             </div>
         </section>
 
-        <!-- Réservations du client -->
+        <!-- Mes réservations -->
         <section id="client-section">
             <h2><i class="fas fa-calendar-check"></i> Mes Réservations</h2>
             <div id="my-bookings">
                 Chargement de vos réservations...
             </div>
         </section>
+
+        <!-- MODAL RÉSERVATION -->
+        <div id="booking-modal" class="modal">
+            <div class="modal-content">
+                <h3>Réserver la salle</h3>
+                <label>Début :</label>
+                <input type="datetime-local" id="booking-start">
+                <label>Fin :</label>
+                <input type="datetime-local" id="booking-end">
+                <label>Demandes spéciales :</label>
+                <textarea id="booking-note" placeholder="Ex: Besoin d'un projecteur"></textarea>
+                <div class="modal-actions">
+                    <button onclick="confirmBooking()"><i class="fas fa-check"></i> Confirmer</button>
+                    <button onclick="closeBookingModal()"><i class="fas fa-times"></i> Annuler</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- FOOTER -->
     <footer>
         <p>Projet ING-WEB - Plateforme de Réservation de Salles</p>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Charger les salles pour le client
         document.addEventListener('DOMContentLoaded', () => {
-            loadRooms('rooms-list');
-        });
+    if (currentUser?.role === 'client') {
+        loadRooms('rooms-list'); // Charger les salles
+        loadClientBookings();    // Charger les réservations du client connecté
+    }
+       });
+
     </script>
 </body>
 </html>

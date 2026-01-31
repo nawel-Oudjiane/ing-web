@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Propriétaire - Réservation Salles</title>
+    <title>Dashboard Propriétaire</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
 
-    <!-- NAVBAR -->
     <nav class="navbar">
         <div class="logo">
             <i class="fas fa-building"></i>
@@ -17,11 +16,13 @@
         </div>
         <div class="nav-links">
             <a href="dashboard-owner.html"><i class="fas fa-home"></i> Accueil</a>
+            <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+                    <i class="fas fa-moon"></i>
+              </button>
             <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </div>
     </nav>
 
-    <!-- CONTENU -->
     <div class="container">
         <section class="hero">
             <h1>Dashboard Propriétaire</h1>
@@ -31,49 +32,174 @@
             </div>
         </section>
 
-        <!-- Ajouter une salle -->
+        <!-- Statistiques SIMPLES -->
+        <section>
+            <h2><i class="fas fa-chart-bar"></i> Mes Statistiques</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin: 1rem 0;">
+                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-door-open" style="color: #4361ee; font-size: 1.5rem;"></i>
+                    <h3 style="margin: 0.5rem 0;" id="owner-rooms-count">0</h3>
+                    <p style="color: #666; margin: 0;">Salles</p>
+                </div>
+                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-calendar-check" style="color: #06d6a0; font-size: 1.5rem;"></i>
+                    <h3 style="margin: 0.5rem 0;" id="owner-bookings-count">0</h3>
+                    <p style="color: #666; margin: 0;">Réservations</p>
+                </div>
+                <div style="background: white; padding: 1rem; border-radius: 8px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                    <i class="fas fa-money-bill-wave" style="color: #7209b7; font-size: 1.5rem;"></i>
+                    <h3 style="margin: 0.5rem 0;" id="owner-revenue">0</h3>
+                    <p style="color: #666; margin: 0;">Revenus (Da)</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ajouter une salle (VOTRE STYLE) -->
         <section id="owner-section">
-            <h2><i class="fas fa-key"></i> Ajouter une Salle</h2>
-            <input type="text" id="room-name" placeholder="Nom de la salle">
-            <textarea id="room-description" placeholder="Description"></textarea>
-            <input type="number" id="room-capacity" placeholder="Capacité">
-            <input type="number" id="room-price" placeholder="Prix/heure (da)">
-            <input type="text" id="room-city" placeholder="Ville">
+            <h2><i class="fas fa-plus-circle"></i> Ajouter une Salle</h2>
+            <input type="text" id="room-name" placeholder="Nom de la salle *" required>
+            <textarea id="room-description" placeholder="Description *" required></textarea>
+            <input type="number" id="room-capacity" placeholder="Capacité *" required>
+            <input type="number" id="room-price" placeholder="Prix/heure (Da) *" required>
+            <input type="text" id="room-city" placeholder="Ville *" required>
+            <textarea id="room-address" placeholder="Adresse (optionnel)"></textarea>
+            <input type="text" id="room-equipment" placeholder="Équipements (optionnel)">
             <button onclick="addRoom()"><i class="fas fa-plus"></i> Ajouter salle</button>
         </section>
 
-        <div id="edit-room-form" class="hidden">
-           <h3>Modifier la salle</h3>
-           <input type="text" id="edit-room-name" placeholder="Nom de la salle">
-           <textarea id="edit-room-description" placeholder="Description"></textarea>
-          <input type="number" id="edit-room-capacity" placeholder="Capacité">
-          <input type="number" id="edit-room-price" placeholder="Prix/heure">
-          <input type="text" id="edit-room-city" placeholder="Ville">
-           <button onclick="updateRoom()"><i class="fas fa-save"></i> Enregistrer</button>
-            <button onclick="cancelEdit()"><i class="fas fa-times"></i> Annuler</button>
-       </div>
-
-
-        <!-- Liste des salles du propriétaire -->
+        <!-- Mes salles -->
         <section>
             <h2><i class="fas fa-door-open"></i> Mes Salles</h2>
             <div id="owner-rooms-list" class="rooms-grid">
                 Chargement de vos salles...
             </div>
         </section>
+
+        <!-- Avis reçus (SIMPLE) -->
+        <section>
+            <h2><i class="fas fa-star"></i> Avis reçus</h2>
+            <div id="owner-reviews" style="background: #f8f9fa; padding: 1rem; border-radius: 8px; min-height: 100px;">
+                Chargement des avis...
+            </div>
+        </section>
     </div>
 
-    <!-- FOOTER -->
     <footer>
-        <p> Plateforme de Réservation de Salles</p>
+        <p>Plateforme de Réservation de Salles</p>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Charger les salles pour le propriétaire
         document.addEventListener('DOMContentLoaded', () => {
-            loadRooms('owner-rooms-list');
+            if (currentUser?.role === 'owner') {
+                // Message de bienvenue
+                const welcomeDiv = document.getElementById('owner-welcome');
+                if (currentUser) {
+                    welcomeDiv.innerHTML = `<h3><i class="fas fa-user-circle"></i> Bienvenue ${currentUser.full_name}</h3>`;
+                }
+                
+                // Charger les données
+                loadOwnerStats();
+                loadRooms('owner-rooms-list');
+                loadOwnerReviews();
+            }
         });
+
+        // Statistiques
+        async function loadOwnerStats() {
+            try {
+                const res = await fetch('/api/stats/owner', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                const stats = await res.json();
+                
+                document.getElementById('owner-rooms-count').textContent = stats.rooms || 0;
+                document.getElementById('owner-bookings-count').textContent = stats.bookings || 0;
+                document.getElementById('owner-revenue').textContent = (stats.total_revenue || 0).toLocaleString();
+            } catch (err) {
+                console.error('Erreur stats:', err);
+            }
+        }
+
+        // Avis
+        async function loadOwnerReviews() {
+            try {
+                const res = await fetch('/api/reviews/owner', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                const reviews = await res.json();
+                const container = document.getElementById('owner-reviews');
+                
+                if (!reviews || !reviews.length) {
+                    container.innerHTML = '<p>Aucun avis pour le moment.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                reviews.slice(0, 3).forEach(review => {
+                    container.innerHTML += `
+                        <div style="margin-bottom: 1rem; padding: 0.5rem; background: white; border-radius: 5px;">
+                            <strong>${review.client_name}</strong> - ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
+                            <p style="margin: 0.5rem 0; color: #666;">${review.comment || 'Pas de commentaire'}</p>
+                            <small style="color: #999;">${new Date(review.created_at).toLocaleDateString()}</small>
+                        </div>
+                    `;
+                });
+                
+            } catch (err) {
+                console.error('Erreur avis:', err);
+                document.getElementById('owner-reviews').innerHTML = '<p>Erreur chargement avis</p>';
+            }
+        }
+
+        // Ajouter salle amélioré
+        async function addRoom() {
+            const name = document.getElementById('room-name').value;
+            const description = document.getElementById('room-description').value;
+            const capacity = document.getElementById('room-capacity').value;
+            const price = document.getElementById('room-price').value;
+            const city = document.getElementById('room-city').value;
+            const address = document.getElementById('room-address').value || null;
+            const equipment = document.getElementById('room-equipment').value || null;
+
+            if (!name || !description || !capacity || !price || !city) {
+                return alert('Veuillez remplir les champs obligatoires (*)');
+            }
+
+            try {
+                const res = await fetch('/api/rooms', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${currentToken}`
+                    },
+                    body: JSON.stringify({ 
+                        name, 
+                        description, 
+                        capacity: parseInt(capacity), 
+                        price_per_hour: parseFloat(price), 
+                        city,
+                        address,
+                        equipment 
+                    })
+                });
+                const data = await res.json();
+                if (data.error) return alert(data.error);
+
+                alert('Salle ajoutée !');
+                loadOwnerStats();
+                loadRooms('owner-rooms-list');
+                
+                // Vider les champs
+                ['room-name','room-description','room-capacity','room-price','room-city','room-address','room-equipment']
+                    .forEach(id => document.getElementById(id).value = '');
+                    
+            } catch (err) {
+                console.error(err);
+                alert('Erreur ajout salle');
+            }
+        }
     </script>
 </body>
 </html>

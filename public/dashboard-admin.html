@@ -3,78 +3,630 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Réservation Salles</title>
+    <title>Admin Dashboard - ReserveURroom</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-    <!-- NAVBAR -->
+    <!-- Navigation -->
     <nav class="navbar">
         <div class="logo">
-            <i class="fas fa-building"></i>
-            <span>ReserveURroom</span>
+            <i class="fas fa-shield-alt"></i>
+            <span>Admin ReserveURroom</span>
         </div>
         <div class="nav-links">
-            <a href="dashboard-admin.html"><i class="fas fa-home"></i> Accueil</a>
+            <a href="dashboard-admin.html"><i class="fas fa-home"></i> Tableau de bord</a>
+            <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+                    <i class="fas fa-moon"></i>
+              </button>
+            <a href="#"><i class="fas fa-cog"></i> Paramètres</a>
             <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </div>
     </nav>
 
-    <!-- CONTENU -->
     <div class="container">
+        <!-- Section Hero -->
         <section class="hero">
-            <h1>Dashboard Administrateur</h1>
-            <p class="subtitle">Gestion complète des utilisateurs et des salles</p>
+            <h1><i class="fas fa-shield-alt"></i> Tableau de Bord Administrateur</h1>
+            <p class="subtitle">Gestion complète de la plateforme ReserveURroom</p>
             <div id="admin-welcome" class="status-card">
-              <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
-           </div>
-  
+                <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
+                <p><i class="fas fa-clock"></i> Dernière connexion: Il y a quelques instants</p>
+            </div>
         </section>
 
-        <!-- Gestion Utilisateurs -->
-        <section id="admin-section">
-            <h2><i class="fas fa-users"></i> Gestion Utilisateurs</h2>
-            <div id="users-list">Chargement...</div>
-            <button onclick="loadUsers()"><i class="fas fa-sync"></i> Rafraîchir</button>
-        </section>
+        <!-- Onglets -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('users')">
+                <i class="fas fa-users"></i> Utilisateurs
+            </button>
+            <button class="tab" onclick="switchTab('rooms')">
+                <i class="fas fa-door-open"></i> Salles
+            </button>
+            <button class="tab" onclick="switchTab('reviews')">
+                <i class="fas fa-comment-alt"></i> Avis & Modération
+            </button>
+            <button class="tab" onclick="switchTab('stats')">
+                <i class="fas fa-chart-line"></i> Statistiques
+            </button>
+        </div>
 
-        <!-- Liste des Salles -->   
-        <section>
-    <h2><i class="fas fa-door-open"></i> Toutes les Salles</h2>
-    <div id="rooms-list" class="rooms-grid">
-        Chargement des salles...
+        <!-- Contenu des Onglets -->
+        <div id="users-content" class="tab-content">
+            <section class="section-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2><i class="fas fa-user-cog"></i> Gestion des Utilisateurs</h2>
+                    <button class="btn btn-primary" onclick="loadUsers()">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+                
+                <!-- Filtres -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                    <select id="roleFilter" class="form-control" style="width: auto;" onchange="filterUsers()">
+                        <option value="">Tous les rôles</option>
+                        <option value="admin">Administrateurs</option>
+                        <option value="owner">Propriétaires</option>
+                        <option value="client">Clients</option>
+                    </select>
+                    <select id="statusFilter" class="form-control" style="width: auto;" onchange="filterUsers()">
+                        <option value="">Tous les statuts</option>
+                        <option value="active">Actifs</option>
+                        <option value="inactive">Inactifs</option>
+                    </select>
+                    <input type="text" id="searchUser" class="form-control" placeholder="Rechercher un utilisateur..." 
+                           style="flex: 1; min-width: 200px;" onkeyup="filterUsers()">
+                </div>
+
+                <div class="table-container">
+                    <table class="users-table" id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Utilisateur</th>
+                                <th>Email</th>
+                                <th>Rôle</th>
+                                <th>Statut</th>
+                                <th>Créé le</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-list">
+                            <!-- Les utilisateurs seront chargés ici -->
+                        </tbody>
+                    </table>
+                </div>
+                <div id="no-users" class="empty-state" style="display: none;">
+                    <i class="fas fa-users-slash"></i>
+                    <p>Aucun utilisateur trouvé</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="rooms-content" class="tab-content" style="display: none;">
+            <section class="section-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2><i class="fas fa-building"></i> Gestion des Salles</h2>
+                    <button class="btn btn-primary" onclick="loadRooms('rooms-list')">
+                        <i class="fas fa-sync-alt"></i> Actualiser
+                    </button>
+                </div>
+
+                <div class="rooms-grid" id="rooms-list">
+                    <!-- Les salles seront chargées ici -->
+                </div>
+                <div id="no-rooms" class="empty-state" style="display: none;">
+                    <i class="fas fa-door-closed"></i>
+                    <p>Aucune salle disponible</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="reviews-content" class="tab-content" style="display: none;">
+            <section class="section-card">
+                <h2><i class="fas fa-comment-medical"></i> Modération des Avis</h2>
+                <p class="subtitle" style="margin-bottom: 1.5rem;">Supervisez et modérez les avis des utilisateurs</p>
+
+                <div class="reviews-list" id="reviews-list">
+                    <!-- Les avis seront chargés ici -->
+                </div>
+                <div id="no-reviews" class="empty-state" style="display: none;">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>Aucun avis à modérer</p>
+                </div>
+            </section>
+        </div>
+
+        <div id="stats-content" class="tab-content" style="display: none;">
+            <!-- Cartes de Statistiques -->
+            <section class="section-card">
+                <h2><i class="fas fa-chart-line"></i> Vue d'ensemble</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <h3 id="users-count">0</h3>
+                        <p>Utilisateurs</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-door-open"></i>
+                        <h3 id="rooms-count">0</h3>
+                        <p>Salles</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <h3 id="bookings-count">0</h3>
+                        <p>Réservations</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <h3 id="reviews-count">0</h3>
+                        <p>Avis</p>
+                    </div>
+                </div>
+            </section>
+        </div>
     </div>
-      </section>
 
-        <!-- Statistiques -->
-        <section>
-            <h2><i class="fas fa-chart-bar"></i> Statistiques</h2>
-            <p>Utilisateurs: <span id="users-count">0</span></p>
-            <p>Salles: <span id="rooms-count">0</span></p>
-            <p> Réservations: <span id="bookings-count">0</span></p>
-        </section>
-
-        <!-- Actions Admin -->
-        <section>
-            <h2><i class="fas fa-trash"></i> Actions Admin</h2>
-            <button onclick="clearAllData()"><i class="fas fa-exclamation-triangle"></i> Supprimer toutes les données</button>
-        </section>
+    <!-- Modals -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Détails de l'Utilisateur</h3>
+                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
     </div>
 
-    <!-- FOOTER -->
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmation</h3>
+                <button class="close-btn" onclick="closeModal('deleteConfirmModal')">&times;</button>
+            </div>
+            <div>
+                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Annuler</button>
+                    <button class="btn btn-danger" onclick="confirmDeleteAction()">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <footer>
-        <p>Plateforme de Réservation de Salles</p>
+        <p>© 2024 ReserveURroom - Plateforme de Réservation de Salles - Interface Administrateur</p>
+        <p style="font-size: 0.9rem; margin-top: 0.5rem; color: var(--gray);">
+            <i class="fas fa-server"></i> Serveur: Online | 
+            <i class="fas fa-database"></i> Base de données: Connectée |
+            <i class="fas fa-user-shield"></i> Mode: Administration
+        </p>
     </footer>
 
     <script src="script.js"></script>
     <script>
-        // Charger les statistiques et utilisateurs
+        // Variables globales pour la modération
+        let pendingAction = null;
+        let currentActionId = null;
+        let currentReviews = [];
+
         document.addEventListener('DOMContentLoaded', () => {
+            // Charger les données initiales
             loadUsers();
-            loadStats();
             loadRooms('rooms-list');
+            
+            // Afficher le message de bienvenue
+            const welcomeDiv = document.getElementById('admin-welcome');
+            if (currentUser) {
+                welcomeDiv.innerHTML = `
+                    <h3><i class="fas fa-user-circle"></i> Bienvenue, ${currentUser.full_name}</h3>
+                    <p><i class="fas fa-clock"></i> Dernière connexion: ${new Date().toLocaleString()}</p>
+                    <p><i class="fas fa-user-shield"></i> Rôle: Administrateur Système</p>
+                `;
+            }
         });
+
+        function switchTab(tabName) {
+            // Mettre à jour les onglets actifs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.style.display = 'none';
+            });
+
+            // Activer le nouvel onglet
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-content`).style.display = 'block';
+
+            // Charger les données spécifiques à l'onglet
+            if (tabName === 'reviews') {
+                loadReviews();
+            } else if (tabName === 'stats') {
+                loadStats();
+            }
+        }
+
+        async function loadStats() {
+            if (!currentToken || currentUser.role !== 'admin') return;
+
+            try {
+                const res = await fetch('/api/stats', { 
+                    headers: { 'Authorization': `Bearer ${currentToken}` } 
+                });
+                if (!res.ok) throw new Error('Erreur récupération statistiques');
+                const stats = await res.json();
+
+                document.getElementById('users-count').textContent = stats.users || 0;
+                document.getElementById('rooms-count').textContent = stats.rooms || 0;
+                document.getElementById('bookings-count').textContent = stats.bookings || 0;
+                document.getElementById('reviews-count').textContent = stats.reviews || 0;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadUsers() {
+            if (!currentToken || currentUser.role !== 'admin') return;
+
+            const tbody = document.getElementById('users-list');
+            tbody.innerHTML = '<tr><td colspan="6" class="loading">Chargement des utilisateurs...</td></tr>';
+
+            try {
+                const res = await fetch('/api/users', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                if (!res.ok) throw new Error('Erreur récupération utilisateurs');
+                const users = await res.json();
+
+                displayUsers(users);
+                filterUsers();
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="6" style="color: var(--danger); text-align: center;">Erreur lors du chargement des utilisateurs</td></tr>';
+            }
+        }
+
+        function displayUsers(users) {
+            const tbody = document.getElementById('users-list');
+            const noUsersDiv = document.getElementById('no-users');
+            
+            if (!users.length) {
+                tbody.innerHTML = '';
+                noUsersDiv.style.display = 'block';
+                return;
+            }
+            
+            noUsersDiv.style.display = 'none';
+
+            tbody.innerHTML = users.map(user => {
+                const roleClass = `badge-${user.role}`;
+                const statusClass = user.active ? 'status-active' : 'status-inactive';
+                const statusText = user.active ? 'Actif' : 'Inactif';
+                const createdDate = user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A';
+
+                return `
+                    <tr data-user-id="${user.id}" data-role="${user.role}" data-status="${user.active ? 'active' : 'inactive'}">
+                        <td>
+                            <strong>${user.full_name}</strong>
+                            <br>
+                            <small>ID: ${user.id}</small>
+                        </td>
+                        <td>${user.email}</td>
+                        <td><span class="badge ${roleClass}">${user.role}</span></td>
+                        <td><span class="badge ${statusClass}">${statusText}</span></td>
+                        <td>${createdDate}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="btn btn-small btn-primary" onclick="viewUserDetails(${user.id})">
+                                    <i class="fas fa-eye"></i> Voir
+                                </button>
+                                <button class="btn btn-small btn-${user.active ? 'warning' : 'success'}" 
+                                        onclick="toggleUserStatus(${user.id}, ${user.active})">
+                                    <i class="fas fa-${user.active ? 'ban' : 'check'}"></i>
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="confirmDeleteUser(${user.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterUsers() {
+            const roleFilter = document.getElementById('roleFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+            const rows = document.querySelectorAll('#users-table tbody tr');
+            
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const role = row.getAttribute('data-role');
+                const status = row.getAttribute('data-status');
+                const text = row.textContent.toLowerCase();
+                
+                const roleMatch = !roleFilter || role === roleFilter;
+                const statusMatch = !statusFilter || status === statusFilter;
+                const searchMatch = !searchTerm || text.includes(searchTerm);
+                
+                if (roleMatch && statusMatch && searchMatch) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            document.getElementById('no-users').style.display = visibleCount === 0 ? 'block' : 'none';
+        }
+
+        function viewUserDetails(userId) {
+            fetch(`/api/users/${userId}`, {
+                headers: { 'Authorization': `Bearer ${currentToken}` }
+            })
+            .then(res => res.json())
+            .then(user => {
+                const modal = document.getElementById('userModal');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalContent = document.getElementById('modalContent');
+                
+                modalTitle.textContent = `Détails: ${user.full_name}`;
+                modalContent.innerHTML = `
+                    <div style="margin-bottom: 1.5rem;">
+                        <h4><i class="fas fa-id-card"></i> Informations</h4>
+                        <p><strong>Nom complet:</strong> ${user.full_name}</p>
+                        <p><strong>Email:</strong> ${user.email}</p>
+                        <p><strong>Rôle:</strong> <span class="badge badge-${user.role}">${user.role}</span></p>
+                        <p><strong>Statut:</strong> <span class="badge ${user.active ? 'status-active' : 'status-inactive'}">
+                            ${user.active ? 'Actif' : 'Inactif'}
+                        </span></p>
+                        <p><strong>Membre depuis:</strong> ${new Date(user.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-primary" onclick="closeModal('userModal')">Fermer</button>
+                    </div>
+                `;
+                
+                modal.style.display = 'flex';
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Erreur lors du chargement des détails utilisateur');
+            });
+        }
+
+        function toggleUserStatus(userId, isActive) {
+            pendingAction = 'toggleUserStatus';
+            currentActionId = userId;
+            
+            const modal = document.getElementById('deleteConfirmModal');
+            const message = document.getElementById('confirmMessage');
+            
+            message.innerHTML = `
+                <p>Êtes-vous sûr de vouloir ${isActive ? 'désactiver' : 'activer'} cet utilisateur ?</p>
+                <p><small>${isActive ? 'L\'utilisateur ne pourra plus se connecter.' : 'L\'utilisateur pourra à nouveau se connecter.'}</small></p>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function confirmDeleteUser(userId) {
+            pendingAction = 'deleteUser';
+            currentActionId = userId;
+            
+            const modal = document.getElementById('deleteConfirmModal');
+            const message = document.getElementById('confirmMessage');
+            
+            message.innerHTML = `
+                <p style="color: var(--danger);"><i class="fas fa-exclamation-circle"></i> Action irréversible</p>
+                <p>Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ?</p>
+                <p><small>Toutes les données associées seront également supprimées.</small></p>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        async function confirmDeleteAction() {
+            const modal = document.getElementById('deleteConfirmModal');
+            
+            try {
+                if (pendingAction === 'deleteUser') {
+                    const res = await fetch(`/api/users/${currentActionId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    });
+                    
+                    if (!res.ok) throw new Error('Erreur suppression utilisateur');
+                    
+                    alert('Utilisateur supprimé avec succès');
+                    loadUsers();
+                    
+                } else if (pendingAction === 'toggleUserStatus') {
+                    const newStatus = !(await fetch(`/api/users/${currentActionId}`, {
+                        headers: { 'Authorization': `Bearer ${currentToken}` }
+                    }).then(res => res.json()).then(user => user.active));
+                    
+                    const res = await fetch(`/api/users/${currentActionId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${currentToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ active: newStatus })
+                    });
+                    
+                    if (!res.ok) throw new Error('Erreur modification statut');
+                    
+                    alert(`Utilisateur ${newStatus ? 'activé' : 'désactivé'} avec succès`);
+                    loadUsers();
+                }
+                
+                modal.style.display = 'none';
+                pendingAction = null;
+                currentActionId = null;
+                
+            } catch (err) {
+                console.error(err);
+                alert('Erreur lors de l\'opération');
+                modal.style.display = 'none';
+            }
+        }
+
+        async function loadReviews() {
+            if (!currentToken || currentUser.role !== 'admin') return;
+
+            const list = document.getElementById('reviews-list');
+            list.innerHTML = '<div class="loading">Chargement des avis...</div>';
+
+            try {
+                const res = await fetch('/api/reviews', {
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                if (res.status === 404) {
+                    list.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-tools"></i>
+                            <p>Fonctionnalité en cours de développement</p>
+                            <p><small>La gestion des avis sera disponible bientôt</small></p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const reviews = await res.json();
+                displayReviews(reviews);
+            } catch (err) {
+                console.error(err);
+                list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des avis</p></div>';
+            }
+        }
+
+        function displayReviews(reviews) {
+            const list = document.getElementById('reviews-list');
+            const noReviewsDiv = document.getElementById('no-reviews');
+            
+            if (!reviews || !reviews.length) {
+                list.innerHTML = '';
+                noReviewsDiv.style.display = 'block';
+                return;
+            }
+            
+            noReviewsDiv.style.display = 'none';
+            
+            list.innerHTML = reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer">${review.user_name || 'Utilisateur'}</span>
+                        <span class="review-rating">
+                            ${'★'.repeat(review.rating || 0)}${'☆'.repeat(5 - (review.rating || 0))}
+                        </span>
+                    </div>
+                    <div class="review-content">${review.comment || 'Aucun commentaire'}</div>
+                    <div class="review-header">
+                        <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                        <div class="btn-group">
+                            <button class="btn btn-small btn-success" onclick="approveReview(${review.id})">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="deleteReview(${review.id})">
+                                <i class="fas fa-times"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            pendingAction = null;
+            currentActionId = null;
+        }
+
+        // Fonctions pour les salles
+        async function deleteRoom(roomId) {
+            if (!currentToken || !currentUser) return alert('Vous devez être connecté');
+
+            if (!confirm('Êtes-vous sûr de vouloir supprimer cette salle ?')) return;
+
+            try {
+                const res = await fetch(`/api/rooms/${roomId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${currentToken}` }
+                });
+                
+                if (!res.ok) {
+                    const data = await res.json();
+                    return alert(data.error || 'Impossible de supprimer la salle');
+                }
+                
+                alert('Salle supprimée avec succès !');
+                loadRooms('rooms-list');
+            } catch (err) {
+                console.error(err);
+                alert('Erreur lors de la suppression de la salle');
+            }
+        }
+
+        // Modifier la fonction loadRooms pour les cartes admin
+        async function loadRoomsAdmin() {
+            try {
+                const res = await fetch('/api/rooms', {
+                    headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}
+                });
+                
+                if (!res.ok) throw new Error('Erreur récupération salles');
+                const rooms = await res.json();
+
+                const list = document.getElementById('rooms-list');
+                const noRoomsDiv = document.getElementById('no-rooms');
+                
+                if (!list) return;
+                
+                if (!rooms.length) { 
+                    list.innerHTML = '';
+                    noRoomsDiv.style.display = 'block';
+                    return; 
+                }
+                
+                noRoomsDiv.style.display = 'none';
+
+                list.innerHTML = rooms.map(room => `
+                    <div class="room-card">
+                        <h4>${room.name}</h4>
+                        <p><i class="fas fa-users"></i> Capacité: ${room.capacity}</p>
+                        <p class="price"><i class="fas fa-money-bill-wave"></i> ${room.price_per_hour} Da / heure</p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${room.city || 'Ville non précisée'}</p>
+                        <p><i class="fas fa-user"></i> Propriétaire: ${room.owner_name || 'ID: ' + room.owner_id}</p>
+                        <div class="room-actions">
+                            <button class="btn btn-small btn-primary" onclick="viewRoomDetails(${room.id})">
+                                <i class="fas fa-eye"></i> Détails
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="deleteRoom(${room.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                const list = document.getElementById('rooms-list');
+                list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des salles</p></div>';
+            }
+        }
+
+        // Redéfinir loadRooms pour utiliser la version admin
+        const originalLoadRooms = loadRooms;
+        loadRooms = loadRoomsAdmin;
     </script>
 </body>
 </html>

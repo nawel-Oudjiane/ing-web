@@ -1,3 +1,4 @@
+// routes/rooms.routes.js
 const express = require('express');
 const RoomsController = require('../controllers/rooms.controller');
 const { authMiddleware } = require('../middleware/auth');
