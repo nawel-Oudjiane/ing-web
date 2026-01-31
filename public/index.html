@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏢 Réservation Salles</title>
+    <title> Plateforme Réservation Salles</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -12,45 +12,69 @@
     <nav class="navbar">
         <div class="logo">
             <i class="fas fa-building"></i>
-            <span>ReserveRoom</span>
+            <span>ReserveURroom</span>
         </div>
         <div class="nav-links">
-            <a href="/"><i class="fas fa-home"></i> Accueil</a>
-            <a href="/api"><i class="fas fa-code"></i> API</a>
+            <a href="#accueil"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#salles"><i class="fas fa-door-open"></i> Salles</a>
+            <a href="#reserver"><i class="fas fa-calendar-check"></i> Réserver</a>
+            <a href="#admin" id="admin-link" class="hidden"><i class="fas fa-crown"></i> Admin</a>
+            <a href="#compte" id="compte-link"><i class="fas fa-user"></i> Mon Compte</a>
         </div>
     </nav>
 
     <!-- CONTENU PRINCIPAL -->
     <div class="container">
-        <!-- INSCRIPTION -->
-        <div class="card">
-            <h2><i class="fas fa-user-plus"></i> Inscription</h2>
-            <h1>LINAAAAA</h1>
-            <input type="email" id="email" placeholder="Email">
-            <input type="password" id="password" placeholder="Mot de passe">
-            <button onclick="register()">S'inscrire</button>
-        </div>
 
-        <!-- SALLES -->
-        <div class="card">
-            <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
-            <div id="rooms-list">Chargement...</div>
-            <button onclick="loadRooms()">Rafraîchir</button>
-        </div>
+        <!-- ACCUEIL -->
+        <section id="accueil" class="hero">
+            <h1>Plateforme de Réservation de Salles</h1>
+            <p class="subtitle"> Système complet de gestion de réservations</p>
+            <div id="auth-status" class="status-card">
+                <h3><i class="fas fa-user-circle"></i> Non connecté</h3>
+                <p>Connectez-vous pour réserver des salles</p>
+            </div>
+        </section>
+         
 
-        <!-- AJOUTER SALLE -->
-        <div class="card">
-            <h2><i class="fas fa-plus-circle"></i> Ajouter une salle</h2>
-            <input type="text" id="roomName" placeholder="Nom">
-            <input type="number" id="capacity" placeholder="Capacité">
-            <button onclick="addRoom()">Ajouter</button>
+        <!-- VISITEUR (auth) -->
+        <div id="visitor-view">
+            <section class="auth-section">
+                <div class="auth-card">
+                    <h3><i class="fas fa-user-plus"></i> Inscription</h3>
+                    <select id="register-role">
+                        <option value="client">Client</option>
+                        <option value="owner">Propriétaire</option>
+                    </select>
+                    <input type="text" id="register-name" placeholder="Nom complet">
+                    <input type="email" id="register-email" placeholder="Email">
+                    <input type="password" id="register-password" placeholder="Mot de passe">
+                    <button onclick="register()"><i class="fas fa-check"></i> S'inscrire</button>
+                </div>
+                <div class="auth-card">
+                    <h3><i class="fas fa-sign-in-alt"></i> Connexion</h3>
+                    <input type="email" id="login-email" placeholder="Email">
+                    <input type="password" id="login-password" placeholder="Mot de passe">
+                    <button onclick="login()"><i class="fas fa-key"></i> Se connecter</button>
+                </div>
+            </section>
         </div>
+        <!-- Liste des Salles -->   
+        <section>
+
+           <h2><i class="fas fa-door-open"></i> Toutes les Salles</h2>
+            <div id="rooms-list" class="rooms-grid">
+                Chargement des salles...
+            </div>
+
+        </section>
+
+        
     </div>
 
     <!-- FOOTER -->
     <footer>
-        <p>Projet ING-WEB - Réservation de salles</p>
-        <p><i class="fas fa-server"></i> Node.js + Express + PostgreSQL</p>
+        <p>Projet ING-WEB - Plateforme de Réservation de Salles</p>
     </footer>
 
     <script src="script.js"></script>

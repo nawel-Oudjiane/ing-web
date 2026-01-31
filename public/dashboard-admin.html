@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Réservation Salles</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-building"></i>
+            <span>ReserveURroom</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard-admin.html"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        </div>
+    </nav>
+
+    <!-- CONTENU -->
+    <div class="container">
+        <section class="hero">
+            <h1>Dashboard Administrateur</h1>
+            <p class="subtitle">Gestion complète des utilisateurs et des salles</p>
+            <div id="admin-welcome" class="status-card">
+              <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
+           </div>
+  
+        </section>
+
+        <!-- Gestion Utilisateurs -->
+        <section id="admin-section">
+            <h2><i class="fas fa-users"></i> Gestion Utilisateurs</h2>
+            <div id="users-list">Chargement...</div>
+            <button onclick="loadUsers()"><i class="fas fa-sync"></i> Rafraîchir</button>
+        </section>
+
+        <!-- Liste des Salles -->   
+        <section>
+    <h2><i class="fas fa-door-open"></i> Toutes les Salles</h2>
+    <div id="rooms-list" class="rooms-grid">
+        Chargement des salles...
+    </div>
+      </section>
+
+        <!-- Statistiques -->
+        <section>
+            <h2><i class="fas fa-chart-bar"></i> Statistiques</h2>
+            <p>Utilisateurs: <span id="users-count">0</span></p>
+            <p>Salles: <span id="rooms-count">0</span></p>
+            <p> Réservations: <span id="bookings-count">0</span></p>
+        </section>
+
+        <!-- Actions Admin -->
+        <section>
+            <h2><i class="fas fa-trash"></i> Actions Admin</h2>
+            <button onclick="clearAllData()"><i class="fas fa-exclamation-triangle"></i> Supprimer toutes les données</button>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Plateforme de Réservation de Salles</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Charger les statistiques et utilisateurs
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUsers();
+            loadStats();
+            loadRooms('rooms-list');
+        });
+    </script>
+</body>
+</html>

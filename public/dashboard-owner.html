@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Propriétaire - Réservation Salles</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-building"></i>
+            <span>ReserveURroom</span>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard-owner.html"><i class="fas fa-home"></i> Accueil</a>
+            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+        </div>
+    </nav>
+
+    <!-- CONTENU -->
+    <div class="container">
+        <section class="hero">
+            <h1>Dashboard Propriétaire</h1>
+            <p class="subtitle">Gérez vos salles et consultez les réservations</p>
+            <div id="owner-welcome" class="status-card">
+                <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
+            </div>
+        </section>
+
+        <!-- Ajouter une salle -->
+        <section id="owner-section">
+            <h2><i class="fas fa-key"></i> Ajouter une Salle</h2>
+            <input type="text" id="room-name" placeholder="Nom de la salle">
+            <textarea id="room-description" placeholder="Description"></textarea>
+            <input type="number" id="room-capacity" placeholder="Capacité">
+            <input type="number" id="room-price" placeholder="Prix/heure (da)">
+            <input type="text" id="room-city" placeholder="Ville">
+            <button onclick="addRoom()"><i class="fas fa-plus"></i> Ajouter salle</button>
+        </section>
+
+        <div id="edit-room-form" class="hidden">
+           <h3>Modifier la salle</h3>
+           <input type="text" id="edit-room-name" placeholder="Nom de la salle">
+           <textarea id="edit-room-description" placeholder="Description"></textarea>
+          <input type="number" id="edit-room-capacity" placeholder="Capacité">
+          <input type="number" id="edit-room-price" placeholder="Prix/heure">
+          <input type="text" id="edit-room-city" placeholder="Ville">
+           <button onclick="updateRoom()"><i class="fas fa-save"></i> Enregistrer</button>
+            <button onclick="cancelEdit()"><i class="fas fa-times"></i> Annuler</button>
+       </div>
+
+
+        <!-- Liste des salles du propriétaire -->
+        <section>
+            <h2><i class="fas fa-door-open"></i> Mes Salles</h2>
+            <div id="owner-rooms-list" class="rooms-grid">
+                Chargement de vos salles...
+            </div>
+        </section>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <p> Plateforme de Réservation de Salles</p>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Charger les salles pour le propriétaire
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRooms('owner-rooms-list');
+        });
+    </script>
+</body>
+</html>
