@@ -813,7 +813,6 @@ async function cancelBooking(bookingId) {
 
 
 
-
 // ================================
 // GESTION DU MODE SOMBRE/CLAIR - VERSION SIMPLIFIÉE
 // ================================
@@ -1111,3 +1110,72 @@ function initForm() {
 
 // Initialiser quand la page est chargée
 document.addEventListener('DOMContentLoaded', initForm);
+
+// ================================
+// FONCTION POUR LA CARTE CLIENT
+// ================================
+async function loadRoomsWithMap(containerId = 'rooms-list') {
+    try {
+        console.log("🔄 Chargement des salles avec carte...");
+        
+        const res = await fetch('/api/rooms', {
+            headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}
+        });
+        
+        if (!res.ok) throw new Error('Erreur récupération salles');
+        const rooms = await res.json();
+        
+        console.log(`✅ ${rooms.length} salles chargées`);
+        
+        // 1. Afficher dans la liste
+        const list = document.getElementById(containerId);
+        if (list) {
+            list.innerHTML = '';
+            
+            if (!rooms.length) { 
+                list.innerHTML = '<div class="empty-state"><p>Aucune salle disponible</p></div>'; 
+            } else {
+                rooms.forEach(room => {
+                    const card = document.createElement('div');
+                    card.className = 'room-card';
+                    card.innerHTML = `
+                        <h4>${room.name}</h4>
+                        <p><i class="fas fa-info-circle"></i> ${room.description || 'Pas de description'}</p>
+                        <p><i class="fas fa-users"></i> Capacité: ${room.capacity}</p>
+                        <p class="price"><i class="fas fa-money-bill-wave"></i> ${room.price_per_hour} Da / heure</p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${room.city || 'Ville non précisée'}</p>
+                        ${room.address ? `<p><i class="fas fa-location-dot"></i> ${room.address}</p>` : ''}
+                        <div class="room-actions">
+                            <button class="btn btn-small btn-primary" onclick="viewRoomDetails(${room.id})">
+                                <i class="fas fa-eye"></i> Détails
+                            </button>
+                            ${currentUser?.role === 'client' ? `
+                                <button class="btn btn-small btn-success" onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})">
+                                    <i class="fas fa-calendar-check"></i> Réserver
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            }
+        }
+        
+        // 2. Mettre à jour la carte si elle existe
+        if (window.initClientMap && document.getElementById('client-map')) {
+            console.log("🗺️ Mise à jour de la carte client...");
+            window.initClientMap(rooms);
+        }
+        
+    } catch (err) {
+        console.error('❌ Erreur chargement salles:', err);
+        const list = document.getElementById(containerId);
+        if (list) {
+            list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des salles</p></div>';
+        }
+    }
+}
+
+// Remplacer l'ancienne fonction loadRooms
+window.loadRooms = loadRoomsWithMap;
+
