@@ -1,22 +1,20 @@
 // routes/rooms.routes.js
+// routes/rooms.routes.js
 const express = require('express');
-const RoomsController = require('../controllers/rooms.controller');
-const { authMiddleware } = require('../middleware/auth');
 const router = express.Router();
+const roomsController = require('../controllers/rooms.controller');
+const { authMiddleware } = require('../middleware/auth');
 
-// PUBLIC : GET toutes les salles
-router.get('/', RoomsController.getAll);
+// Routes publiques (visiteurs/clients)
+router.get('/', roomsController.getAll); // S'adapte selon utilisateur
+router.get('/:id', roomsController.getOne);
 
-// GET une salle spécifique (propriétaire / admin)
-router.get('/:id', authMiddleware, RoomsController.getOne);
+// Routes protégées
+router.post('/', authMiddleware, roomsController.create);
+router.put('/:id', authMiddleware, roomsController.update);
+router.delete('/:id', authMiddleware, roomsController.remove);
 
-// OWNER : créer une salle
-router.post('/', authMiddleware, RoomsController.create);
-
-// OWNER / ADMIN : modifier salle
-router.put('/:id', authMiddleware, RoomsController.update);
-
-// OWNER / ADMIN : supprimer salle
-router.delete('/:id', authMiddleware, RoomsController.remove);
+// Route spécifique pour les propriétaires (leurs salles seulement)
+router.get('/owner/my-rooms', authMiddleware, roomsController.getOwnerRooms);
 
 module.exports = router;

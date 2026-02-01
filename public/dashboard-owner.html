@@ -26,6 +26,7 @@
     </nav>
 
     <div class="container">
+        <!-- HERO -->
         <section class="hero">
             <h1>Dashboard Propriétaire</h1>
             <p class="subtitle">Gérez vos salles et consultez les réservations</p>
@@ -34,7 +35,7 @@
             </div>
         </section>
 
-        <!-- Statistiques -->
+        <!-- STATISTIQUES -->
         <section>
             <h2><i class="fas fa-chart-bar"></i> Mes Statistiques</h2>
             <div class="stats-grid">
@@ -56,7 +57,7 @@
             </div>
         </section>
 
-        <!-- Ajouter une salle -->
+        <!-- AJOUTER UNE SALLE -->
         <section id="owner-section" class="section-card">
             <h2><i class="fas fa-plus-circle"></i> Ajouter une Salle</h2>
             
@@ -89,22 +90,18 @@
                 <input type="text" id="room-equipment" placeholder="Équipements (optionnel)">
             </div>
             
-            <!-- Carte pour localisation -->
             <div class="form-group">
                 <label><i class="fas fa-map-marker-alt"></i> Localisation sur la carte *</label>
-                
                 <div class="search-box">
                     <input type="text" id="address-search" placeholder="Rechercher une adresse...">
                     <button type="button" onclick="searchAddress()" class="btn btn-small">
                         <i class="fas fa-search"></i>
                     </button>
                 </div>
-                
                 <div id="owner-map" class="map-container"></div>
                 <small class="map-instruction">
                     <i class="fas fa-info-circle"></i> Cliquez sur la carte pour définir l'emplacement
                 </small>
-                
                 <input type="hidden" id="room-latitude">
                 <input type="hidden" id="room-longitude">
             </div>
@@ -116,12 +113,12 @@
             </div>
         </section>
 
-        <!-- Mes salles -->
+        <!-- MES SALLES -->
         <section class="section-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h2><i class="fas fa-door-open"></i> Mes Salles</h2>
-                <button class="btn btn-small btn-primary" onclick="loadRooms('owner-rooms-list')">
-                    <i class="fas fa-sync-alt"></i>
+                <button class="btn btn-small btn-primary" onclick="loadOwnerRooms('owner-rooms-list')">
+                    <i class="fas fa-sync-alt"></i> Actualiser
                 </button>
             </div>
             <div id="owner-rooms-list" class="rooms-grid">
@@ -129,7 +126,37 @@
             </div>
         </section>
 
-        <!-- Avis reçus -->
+        <!-- FORMULAIRE MODIFIER SALLE -->
+        <section id="edit-room-form" class="section-card" style="display: none;">
+            <h2><i class="fas fa-edit"></i> Modifier la Salle</h2>
+            <div class="form-group">
+                <input type="text" id="edit-room-name" placeholder="Nom de la salle *" required>
+            </div>
+            <div class="form-group">
+                <textarea id="edit-room-description" placeholder="Description *" required></textarea>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div class="form-group">
+                    <input type="number" id="edit-room-capacity" placeholder="Capacité *" required>
+                </div>
+                <div class="form-group">
+                    <input type="number" id="edit-room-price" placeholder="Prix/heure (Da) *" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="edit-room-city" placeholder="Ville *" required>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-primary" onclick="updateRoom()">
+                    <i class="fas fa-save"></i> Enregistrer
+                </button>
+                <button class="btn btn-secondary" onclick="cancelEdit()">
+                    <i class="fas fa-times"></i> Annuler
+                </button>
+            </div>
+        </section>
+
+        <!-- AVIS -->
         <section class="section-card">
             <h2><i class="fas fa-star"></i> Avis reçus</h2>
             <div id="owner-reviews" class="reviews-container">
@@ -147,150 +174,112 @@
     <script src="script.js"></script>
     <script src="map-utils.js"></script>
     <script src="owner-map.js"></script>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (currentUser?.role === 'owner') {
-                // Message de bienvenue
-                const welcomeDiv = document.getElementById('owner-welcome');
-                if (currentUser) {
-                    welcomeDiv.innerHTML = `<h3><i class="fas fa-user-circle"></i> Bienvenue ${currentUser.full_name}</h3>`;
-                }
-                
-                // Charger les données
-                loadOwnerStats();
-                loadRooms('owner-rooms-list');
-                loadOwnerReviews();
-                
-                // Initialiser la carte
-                if (window.initOwnerMap) {
-                    initOwnerMap();
-                }
-            }
-        });
+    <script src="room-details.js"></script> 
 
-        // Statistiques propriétaire
+    <script>
+        // -----------------------------
+        // CHARGER LES SALLES DU PROPRIETAIRE
+        // -----------------------------
+        async function loadOwnerRooms(containerId = 'owner-rooms-list') {
+            if (!currentUser || currentUser.role !== 'owner') {
+                console.warn('loadOwnerRooms appelé sans owner');
+                return;
+            }
+            try {
+                const res = await fetch('/api/rooms', {
+                    headers: { Authorization: `Bearer ${currentToken}` }
+                });
+                if (!res.ok) throw new Error('Erreur récupération salles');
+
+                const rooms = await res.json();
+
+                // 🔒 Filtrage des salles de ce propriétaire uniquement
+                const ownerRooms = rooms.filter(room => room.owner_id === currentUser.id);
+
+                const container = document.getElementById(containerId);
+
+                if (!ownerRooms.length) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-door-closed"></i>
+                            <p>Vous n’avez encore aucune salle</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = ownerRooms.map(room => `
+                    <div class="room-card">
+                        <h4>${room.name}</h4>
+                        <p><i class="fas fa-users"></i> Capacité: ${room.capacity}</p>
+                        <p class="price">${room.price_per_hour} Da / heure</p>
+                        <p><i class="fas fa-map-marker-alt"></i> ${room.city}</p>
+                        <div class="room-actions">
+                            <button class="btn btn-small btn-primary" onclick="editRoom(${room.id})">
+                                <i class="fas fa-edit"></i> Modifier
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="deleteRoom(${room.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById(containerId).innerHTML =
+                    `<p style="color:red">Erreur chargement salles</p>`;
+            }
+        }
+
+        // -----------------------------
+        // CHARGER LES STATS DU PROPRIETAIRE
+        // -----------------------------
         async function loadOwnerStats() {
             try {
                 const res = await fetch('/api/stats/owner', {
                     headers: { 'Authorization': `Bearer ${currentToken}` }
                 });
-                if (!res.ok) throw new Error('Erreur stats');
-                
+                if (!res.ok) return;
+
                 const stats = await res.json();
                 document.getElementById('owner-rooms-count').textContent = stats.rooms || 0;
                 document.getElementById('owner-bookings-count').textContent = stats.bookings || 0;
-                document.getElementById('owner-revenue').textContent = (stats.total_revenue || 0).toLocaleString();
+                document.getElementById('owner-revenue').textContent =
+                    (stats.total_revenue || 0).toLocaleString();
             } catch (err) {
-                console.error('Erreur stats:', err);
+                console.error('Stats erreur:', err);
             }
         }
 
-        // Avis propriétaire
-        async function loadOwnerReviews() {
-            try {
-                const res = await fetch('/api/reviews/owner', {
-                    headers: { 'Authorization': `Bearer ${currentToken}` }
-                });
-                
-                if (!res.ok) throw new Error('Erreur avis');
-                const reviews = await res.json();
-                const container = document.getElementById('owner-reviews');
-                
-                if (!reviews?.length) {
-                    container.innerHTML = '<p class="empty-state">Aucun avis pour le moment.</p>';
-                    return;
-                }
-                
-                container.innerHTML = reviews.slice(0, 5).map(review => `
-                    <div class="review-card">
-                        <div class="review-header">
-                            <span class="reviewer">${review.client_name || 'Client'}</span>
-                            <span class="review-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}</span>
-                        </div>
-                        <div class="review-content">${review.comment || 'Pas de commentaire'}</div>
-                        <div class="review-footer">
-                            <small>${new Date(review.created_at).toLocaleDateString()}</small>
-                        </div>
-                    </div>
-                `).join('');
-                
-            } catch (err) {
-                console.error('Erreur avis:', err);
-                document.getElementById('owner-reviews').innerHTML = '<p class="error">Erreur chargement avis</p>';
-            }
-        }
+        // -----------------------------
+        // INITIALISATION DU DASHBOARD OWNER
+        // -----------------------------
+        function initOwnerDashboard() {
+            if (currentUser && currentUser.role === 'owner') {
+                const welcomeDiv = document.getElementById('owner-welcome');
+                welcomeDiv.innerHTML = `<h3><i class="fas fa-user-circle"></i> Bienvenue ${currentUser.full_name}</h3>`;
 
-        // Ajouter salle (PROPRIÉTAIRE SPÉCIFIQUE)
-        async function addOwnerRoom() {
-            const name = document.getElementById('room-name').value.trim();
-            const description = document.getElementById('room-description').value.trim();
-            const capacity = document.getElementById('room-capacity').value;
-            const price = document.getElementById('room-price').value;
-            const city = document.getElementById('room-city').value.trim();
-            const address = document.getElementById('room-address').value.trim() || null;
-            const equipment = document.getElementById('room-equipment').value.trim() || null;
-            const latitude = document.getElementById('room-latitude').value;
-            const longitude = document.getElementById('room-longitude').value;
-
-            // Validation
-            if (!name || !description || !capacity || !price || !city) {
-                return alert('Veuillez remplir les champs obligatoires (*)');
-            }
-            
-            if (!latitude || !longitude) {
-                return alert('Veuillez définir l\'emplacement sur la carte');
-            }
-
-            try {
-                const res = await fetch('/api/rooms', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${currentToken}`
-                    },
-                    body: JSON.stringify({ 
-                        name, 
-                        description, 
-                        capacity: parseInt(capacity), 
-                        price_per_hour: parseFloat(price), 
-                        city,
-                        address,
-                        latitude: parseFloat(latitude),
-                        longitude: parseFloat(longitude),
-                        equipment 
-                    })
-                });
-                
-                if (!res.ok) {
-                    const data = await res.json();
-                    return alert(data.error || 'Erreur ajout salle');
-                }
-                
-                alert('✅ Salle ajoutée avec succès !');
-                
-                // Recharger
+                // Charger salles et stats
+                loadOwnerRooms('owner-rooms-list');
                 loadOwnerStats();
-                loadRooms('owner-rooms-list');
-                
-                // Vider le formulaire
-                ['room-name','room-description','room-capacity','room-price','room-city',
-                 'room-address','room-equipment','address-search'].forEach(id => {
-                    const el = document.getElementById(id);
-                    if (el) el.value = '';
-                });
-                
-                // Réinitialiser la carte
-                if (window.locationMarker && window.ownerMap) {
-                    window.ownerMap.removeLayer(window.locationMarker);
-                    window.locationMarker = null;
-                }
-                
-            } catch (err) {
-                console.error('Erreur:', err);
-                alert('Erreur lors de l\'ajout de la salle');
+
+                // Initialiser carte
+                if (window.initOwnerMap) initOwnerMap();
             }
         }
+
+        // -----------------------------
+        // LANCER AU CHARGEMENT QUAND currentUser EST DÉFINI
+        // -----------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            if (currentUser) {
+                initOwnerDashboard();
+            } else {
+                // si currentUser est récupéré plus tard (ex: async), on peut l'appeler après login
+                document.addEventListener('userReady', initOwnerDashboard);
+            }
+        });
     </script>
 </body>
 </html>

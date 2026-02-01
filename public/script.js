@@ -6,6 +6,7 @@ let currentToken = null;
 let currentEditRoomId = null;
 let currentBookingRoomId = null;
 
+
 // ================================
 // INITIALISATION AU CHARGEMENT DE LA PAGE
 // ================================
@@ -42,6 +43,9 @@ function checkAuthStatus() {
 // ================================
 // CONFIGURATION DASHBOARD SELON RÔLE
 // ================================
+// ================================
+// CONFIGURATION DASHBOARD SELON RÔLE
+
 function setupDashboard() {
     if (!currentUser) return;
 
@@ -54,7 +58,10 @@ function setupDashboard() {
     } else if (currentUser.role === 'owner') {
         const welcomeDiv = document.getElementById('owner-welcome');
         if (welcomeDiv) welcomeDiv.innerHTML = `<h3>👋 Bienvenue ${currentUser.full_name}</h3>`;
-        loadRooms('owner-rooms-list');
+        
+        // IMPORTANT : Utiliser loadRooms avec 'owner-rooms-list'
+        loadRooms('owner-rooms-list'); // <-- Ça va filtrer automatiquement
+        
     } else if (currentUser.role === 'client') {
         const welcomeDiv = document.getElementById('client-welcome');
         if (welcomeDiv) welcomeDiv.innerHTML = `<h3>👋 Bienvenue ${currentUser.full_name}</h3>`;
@@ -62,7 +69,6 @@ function setupDashboard() {
         loadClientBookings();
     }
 }
-
 // ================================
 // LOGIN
 // ================================
@@ -141,19 +147,30 @@ function logout() {
     window.location.href = '/index.html';
 }
 
+
 // ================================
-// CHARGER SALLES
+// CHARGER SALLES - VERSION 
+// ================================
+// ================================
+// CHARGER SALLES - VERSION ULTRA-SIMPLE
 // ================================
 async function loadRooms(targetListId) {
     try {
+        console.log(`loadRooms appelé pour: ${targetListId}`);
+        
         const res = await fetch('/api/rooms', {
             headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}
         });
+        
         if (!res.ok) throw new Error('Erreur récupération salles');
         const rooms = await res.json();
 
         const list = document.getElementById(targetListId);
-        if (!list) return;
+        if (!list) {
+            console.error(`Élément #${targetListId} non trouvé`);
+            return;
+        }
+        
         list.innerHTML = '';
 
         if (!rooms.length) { 
@@ -161,31 +178,85 @@ async function loadRooms(targetListId) {
             return; 
         }
 
-        rooms.forEach(room => {
-            if (currentUser?.role === 'owner' && targetListId === 'owner-rooms-list' && room.owner_id !== currentUser.id) return;
+        // IMPORTANT: Filtrer pour le dashboard owner
+        let roomsToShow = rooms;
+        if (targetListId === 'owner-rooms-list' && currentUser?.role === 'owner') {
+            roomsToShow = rooms.filter(room => {
+                console.log(`Filtrage: salle ${room.id} - owner:${room.owner_id}, moi:${currentUser.id}`);
+                return room.owner_id == currentUser.id;
+            });
+            console.log(`Dashboard owner: ${rooms.length} total -> ${roomsToShow.length} salles du proprio`);
+        }
 
+        if (!roomsToShow.length) {
+            if (targetListId === 'owner-rooms-list') {
+                list.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: #666;">
+                        <i class="fas fa-door-closed" style="font-size: 3rem; margin-bottom: 1rem;"></i>
+                        <p>Vous n'avez pas encore ajouté de salles</p>
+                        <button class="btn btn-primary" onclick="document.querySelector('#owner-section').scrollIntoView()">
+                            <i class="fas fa-plus"></i> Ajouter une salle
+                        </button>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = '<p>Aucune salle disponible</p>';
+            }
+            return;
+        }
+
+        // AFFICHER LES SALLES
+        roomsToShow.forEach(room => {
             const card = document.createElement('div');
             card.className = 'room-card';
-
+            
+            // BOUTONS selon le contexte
             let actionButtons = '';
-            if (currentUser) {
-                if (currentUser.role === 'client') {
-                    actionButtons = `<button onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})">Réserver</button>`;
-                } else if (currentUser.role === 'admin') {
-                    actionButtons = `<button onclick="deleteRoom(${room.id})">Supprimer</button>`;
-                } else if (currentUser.role === 'owner' && room.owner_id === currentUser.id) {
-                    actionButtons = `
-                        <button onclick="editRoom(${room.id})">Modifier</button>
-                        <button onclick="deleteRoom(${room.id})">Supprimer</button>
-                    `;
-                }
+            
+            if (!currentUser) {
+                // Visiteur
+                actionButtons = `
+                    <button onclick="viewRoomDetails(${room.id})" class="btn btn-info">
+                        <i class="fas fa-eye"></i> Détails
+                    </button>
+                `;
+            }
+            else if (currentUser.role === 'client') {
+                // Client
+                actionButtons = `
+                    <button onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})" class="btn btn-success">
+                        <i class="fas fa-calendar-plus"></i> Réserver
+                    </button>
+                `;
+            }
+            else if (currentUser.role === 'admin') {
+                // Admin
+                actionButtons = `
+                    <button onclick="deleteRoom(${room.id})" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                `;
+            }
+            else if (currentUser.role === 'owner') {
+                // Propriétaire - TOUJOURS Modifier/Supprimer sur son dashboard
+                actionButtons = `
+                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                        <button onclick="editRoom(${room.id})" class="btn btn-warning">
+                            <i class="fas fa-edit"></i> Modifier
+                        </button>
+                        <button onclick="deleteRoom(${room.id})" class="btn btn-danger">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                `;
             }
 
             card.innerHTML = `
                 <h4>${room.name}</h4>
-                <p>Capacité: ${room.capacity}</p>
-                <p>${room.price_per_hour} Da / heure</p>
-                <p>${room.city || 'Ville non précisée'}</p>
+                <p>${room.description || 'Pas de description'}</p>
+                <p><strong>Capacité:</strong> ${room.capacity} personnes</p>
+                <p><strong>Prix:</strong> ${room.price_per_hour} Da / heure</p>
+                <p><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</p>
                 ${actionButtons}
             `;
             list.appendChild(card);
@@ -197,8 +268,12 @@ async function loadRooms(targetListId) {
     }
 }
 
+
 // ================================
 // AJOUT SALLE (OWNER)
+// ================================
+// ================================
+// AJOUT SALLE (OWNER) - VERSION SIMPLE
 // ================================
 async function addRoom() {
     if (!currentToken || currentUser.role !== 'owner') return alert('Accès refusé');
@@ -225,16 +300,133 @@ async function addRoom() {
         if (data.error) return alert(data.error);
 
         alert('Salle ajoutée !');
-        loadRooms('owner-rooms-list');
+        
+        // Recharger les salles du proprio
+        loadRooms('owner-rooms-list'); // <-- C'EST TOUT !
+        
     } catch (err) {
         console.error(err);
         alert('Erreur lors de l\'ajout de la salle');
     }
 }
 
+
 // ================================
-// MODAL RÉSERVATION
+// AJOUTER SALLE (POUR LE DASHBOARD OWNER HTML)
 // ================================
+async function addOwnerRoom() {
+    if (!currentToken || currentUser?.role !== 'owner') return alert('Accès refusé');
+
+    const name = document.getElementById('room-name').value.trim();
+    const description = document.getElementById('room-description').value.trim();
+    const capacity = document.getElementById('room-capacity').value;
+    const price = document.getElementById('room-price').value;
+    const city = document.getElementById('room-city').value.trim();
+    const address = document.getElementById('room-address').value.trim() || null;
+    const equipment = document.getElementById('room-equipment').value.trim() || null;
+    const latitude = document.getElementById('room-latitude').value;
+    const longitude = document.getElementById('room-longitude').value;
+
+    // Validation
+    if (!name || !description || !capacity || !price || !city) {
+        return alert('Veuillez remplir les champs obligatoires (*)');
+    }
+    
+    if (!latitude || !longitude) {
+        return alert('Veuillez définir l\'emplacement sur la carte');
+    }
+
+    try {
+        const res = await fetch('/api/rooms', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({ 
+                name, 
+                description, 
+                capacity: parseInt(capacity), 
+                price_per_hour: parseFloat(price), 
+                city,
+                address,
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude),
+                equipment 
+            })
+        });
+        
+        if (!res.ok) {
+            const data = await res.json();
+            return alert(data.error || 'Erreur ajout salle');
+        }
+        
+        alert('✅ Salle ajoutée avec succès !');
+        
+        // Recharger les salles
+        loadRooms('owner-rooms-list');
+        
+        // Vider le formulaire
+        ['room-name','room-description','room-capacity','room-price','room-city',
+         'room-address','room-equipment','address-search'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        
+        // Réinitialiser la carte
+        if (window.locationMarker && window.ownerMap) {
+            window.ownerMap.removeLayer(window.locationMarker);
+            window.locationMarker = null;
+        }
+        
+    } catch (err) {
+        console.error('Erreur:', err);
+        alert('Erreur lors de l\'ajout de la salle');
+    }
+}
+
+// ================================
+// EDITER SALLE
+// ================================
+function editRoom(roomId) {
+    currentEditRoomId = roomId;
+    console.log(`Modification salle ID: ${roomId}`);
+
+    fetch(`/api/rooms/${roomId}`, { 
+        headers: { 'Authorization': `Bearer ${currentToken}` } 
+    })
+    .then(res => res.json())
+    .then(room => {
+        // Remplir le formulaire de modification
+        document.getElementById('edit-room-name').value = room.name || '';
+        document.getElementById('edit-room-description').value = room.description || '';
+        document.getElementById('edit-room-capacity').value = room.capacity || '';
+        document.getElementById('edit-room-price').value = room.price_per_hour || '';
+        document.getElementById('edit-room-city').value = room.city || '';
+        
+        // Afficher le formulaire
+        const editForm = document.getElementById('edit-room-form');
+        if (editForm) {
+            editForm.style.display = 'block';
+            editForm.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            alert('Formulaire de modification non trouvé sur cette page');
+        }
+    })
+    .catch(err => { 
+        console.error(err); 
+        alert('Erreur lors du chargement de la salle'); 
+    });
+}
+
+function cancelEdit() {
+    currentEditRoomId = null;
+    const editForm = document.getElementById('edit-room-form');
+    if (editForm) {
+        editForm.style.display = 'none';
+    }
+}
+
 // ================================
 // MODAL RÉSERVATION 
 // ================================
@@ -451,31 +643,9 @@ async function deleteRoom(roomId) {
 // ================================
 // EDITER SALLE (OWNER / ADMIN)
 // ================================
-function editRoom(roomId) {
-    currentEditRoomId = roomId;
-
-    fetch(`/api/rooms/${roomId}`, { headers: { 'Authorization': `Bearer ${currentToken}` } })
-        .then(res => res.json())
-        .then(room => {
-            if (currentUser.role !== 'admin' && room.owner_id !== currentUser.id) {
-                return alert("Vous ne pouvez modifier que vos propres salles");
-            }
-
-            document.getElementById('edit-room-name').value = room.name || '';
-            document.getElementById('edit-room-description').value = room.description || '';
-            document.getElementById('edit-room-capacity').value = room.capacity || '';
-            document.getElementById('edit-room-price').value = room.price_per_hour || '';
-            document.getElementById('edit-room-city').value = room.city || '';
-            document.getElementById('edit-room-form').classList.remove('hidden');
-        })
-        .catch(err => { console.error(err); alert('Erreur lors du chargement de la salle'); });
-}
-
-function cancelEdit() {
-    currentEditRoomId = null;
-    document.getElementById('edit-room-form').classList.add('hidden');
-}
-
+// ================================
+// METTRE À JOUR SALLE
+// ================================
 async function updateRoom() {
     if (!currentEditRoomId) return;
 
@@ -498,18 +668,21 @@ async function updateRoom() {
             },
             body: JSON.stringify({ name, description, capacity, price_per_hour, city })
         });
+        
         const data = await res.json();
         if (data.error) return alert(data.error);
 
-        alert("Salle modifiée avec succès !");
+        alert("✅ Salle modifiée avec succès !");
         cancelEdit();
-        loadRooms(currentUser.role === 'owner' ? 'owner-rooms-list' : 'rooms-list');
+        
+        // Recharger les salles
+        loadRooms('owner-rooms-list');
+        
     } catch (err) {
         console.error(err);
-        alert("Erreur lors de la modification de la salle");
+        alert("❌ Erreur lors de la modification de la salle");
     }
 }
-
 // ================================
 // ADMIN - UTILISATEURS ET STATS
 // ================================
@@ -1179,3 +1352,180 @@ async function loadRoomsWithMap(containerId = 'rooms-list') {
 // Remplacer l'ancienne fonction loadRooms
 window.loadRooms = loadRoomsWithMap;
 
+
+// ================================
+// FONCTION SPÉCIFIQUE PROPRIÉTAIRE - Charger uniquement ses salles
+// ================================
+async function loadOwnerRooms() {
+    if (!currentToken || currentUser?.role !== 'owner') return;
+    
+    const list = document.getElementById('owner-rooms-list');
+    if (!list) return;
+    
+    list.innerHTML = '<div class="loading">Chargement de vos salles...</div>';
+    
+    try {
+        const res = await fetch('/api/rooms', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!res.ok) throw new Error('Erreur récupération salles');
+        const rooms = await res.json();
+        
+        // DEBUG: Voir ce que l'API retourne
+        console.log('Toutes les salles:', rooms);
+        console.log('User ID actuel:', currentUser.id);
+        
+        // Filtrer pour n'afficher que les salles du propriétaire connecté
+        const ownerRooms = rooms.filter(room => {
+            console.log(`Salle ${room.id} - owner_id: ${room.owner_id}, user_id: ${currentUser.id}`);
+            return room.owner_id == currentUser.id; // Utiliser == pour comparer des strings/numbers
+        });
+        
+        console.log('Salles filtrées:', ownerRooms);
+        
+        if (!ownerRooms.length) { 
+            list.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-door-closed"></i>
+                    <p>Vous n'avez pas encore ajouté de salles</p>
+                    <button class="btn btn-primary" onclick="document.querySelector('#owner-section').scrollIntoView({behavior: 'smooth'})">
+                        <i class="fas fa-plus"></i> Ajouter une salle
+                    </button>
+                </div>
+            `; 
+            return; 
+        }
+        
+        list.innerHTML = '';
+        ownerRooms.forEach(room => {
+            const card = document.createElement('div');
+            card.className = 'room-card';
+            
+            card.innerHTML = `
+                <h4>${room.name}</h4>
+                <p>${room.description || 'Pas de description'}</p>
+                <p><strong>Capacité:</strong> ${room.capacity} personnes</p>
+                <p><strong>Prix:</strong> ${room.price_per_hour} Da / heure</p>
+                <p><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</p>
+                ${room.address ? `<p><strong>Adresse:</strong> ${room.address}</p>` : ''}
+                <div class="room-actions">
+                    <button onclick="editRoom(${room.id})" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+                    <button onclick="deleteRoom(${room.id})" class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+        
+    } catch (err) {
+        console.error('Erreur chargement salles propriétaire:', err);
+        list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement de vos salles</p></div>';
+    }
+}
+// ================================
+// SUPPRIMER SALLE
+// ================================
+// ================================
+// SUPPRIMER SALLE
+// ================================
+async function deleteRoom(roomId) {
+    if (!currentToken || !currentUser) return alert('Vous devez être connecté');
+
+    const confirmDelete = confirm('Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.');
+    if (!confirmDelete) return;
+
+    try {
+        const res = await fetch(`/api/rooms/${roomId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!res.ok) {
+            const data = await res.json();
+            return alert(data.error || 'Impossible de supprimer la salle');
+        }
+        
+        alert('✅ Salle supprimée !');
+        
+        // Recharger selon la page
+        if (window.location.pathname.includes('dashboard-owner.html')) {
+            loadRooms('owner-rooms-list');
+        } else {
+            loadRooms('rooms-list');
+        }
+        
+    } catch (err) {
+        console.error(err);
+        alert('❌ Erreur lors de la suppression de la salle');
+    }
+}
+
+
+/* =====================================================
+   OWNER – Charger uniquement les salles du propriétaire connecté
+   ===================================================== */
+async function loadOwnerRooms(containerId = 'rooms-list') {
+    if (!currentUser || currentUser.role !== 'owner') {
+        console.warn('loadOwnerRooms appelé sans owner');
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/rooms', {
+            headers: {
+                Authorization: `Bearer ${currentToken}`
+            }
+        });
+
+        if (!res.ok) throw new Error('Erreur récupération salles');
+
+        const rooms = await res.json();
+
+        // 🔒 Filtrage STRICT côté front
+        const ownerRooms = rooms.filter(
+            room => room.owner_id === currentUser.id
+        );
+
+        const container = document.getElementById(containerId);
+
+        if (!ownerRooms.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-door-closed"></i>
+                    <p>Vous n’avez encore aucune salle</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = ownerRooms.map(room => `
+            <div class="room-card">
+                <h4>${room.name}</h4>
+                <p><i class="fas fa-users"></i> Capacité: ${room.capacity}</p>
+                <p class="price">${room.price_per_hour} Da / heure</p>
+                <p><i class="fas fa-map-marker-alt"></i> ${room.city}</p>
+
+                <div class="room-actions">
+                    <button class="btn btn-small btn-primary"
+                        onclick="editRoom(${room.id})">
+                        <i class="fas fa-edit"></i> Modifier
+                    </button>
+
+                    <button class="btn btn-small btn-danger"
+                        onclick="deleteRoom(${room.id})">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) {
+        console.error(err);
+        document.getElementById(containerId).innerHTML =
+            `<p style="color:red">Erreur chargement salles</p>`;
+    }
+}
