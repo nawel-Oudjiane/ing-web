@@ -933,3 +933,181 @@ if (document.readyState === 'loading') {
     console.log("DOM déjà prêt - initialisation immédiate");
     initThemeSystem();
 }
+
+// ================================
+// Fonction pour ajouter un utilisateur (ADMIN)
+// ================================
+
+
+async function addUser(event) {
+    event.preventDefault(); // Empêcher le rechargement de la page
+    
+    // Récupérer les valeurs du formulaire
+    const email = document.getElementById('new-email').value.trim();
+    const password = document.getElementById('new-password').value;
+    const fullName = document.getElementById('new-fullname').value.trim();
+    const role = document.getElementById('new-role').value;
+    
+    // Validation
+    if (!validateForm(email, password)) {
+        return;
+    }
+    
+    // Désactiver le bouton pendant la requête
+    const submitBtn = document.querySelector('.btn-add');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Création...';
+    submitBtn.disabled = true;
+    
+    try {
+        const token = localStorage.getItem('token');
+        const userData = {
+            email: email,
+            password: password,
+            full_name: fullName || null,
+            role: role
+        };
+        
+        console.log('Envoi des données:', userData);
+        
+        // Envoyer la requête au backend
+        const response = await fetch('/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        const result = await response.json();
+        
+        if (!response.ok) {
+            throw new Error(result.error || 'Erreur lors de la création');
+        }
+        
+        // Succès
+        showSuccessMessage('Utilisateur créé avec succès !');
+        
+        // Réinitialiser le formulaire
+        document.getElementById('add-user-form').reset();
+        
+        // Recharger la liste des utilisateurs
+        setTimeout(() => {
+            loadUsersTable();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Erreur création utilisateur:', error);
+        showErrorMessage(`Erreur: ${error.message}`);
+    } finally {
+        // Réactiver le bouton
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    }
+}
+
+// Validation du formulaire
+function validateForm(email, password) {
+    // Réinitialiser les messages d'erreur
+    hideErrorMessages();
+    
+    let isValid = true;
+    
+    // Validation email
+    if (!email) {
+        showFieldError('new-email', 'L\'email est requis');
+        isValid = false;
+    } else if (!isValidEmail(email)) {
+        showFieldError('new-email', 'Email invalide');
+        isValid = false;
+    }
+    
+    // Validation mot de passe
+    if (!password) {
+        showFieldError('new-password', 'Le mot de passe est requis');
+        isValid = false;
+    } else if (password.length < 6) {
+        showFieldError('new-password', 'Minimum 6 caractères');
+        isValid = false;
+    }
+    
+    return isValid;
+}
+
+// Vérifier si l'email est valide
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Afficher un message d'erreur pour un champ
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message show';
+    errorDiv.textContent = message;
+    
+    // Insérer après le champ
+    field.parentNode.appendChild(errorDiv);
+    
+    // Ajouter une classe d'erreur au champ
+    field.style.borderColor = '#e74c3c';
+}
+
+// Cacher tous les messages d'erreur
+function hideErrorMessages() {
+    // Supprimer les messages d'erreur existants
+    document.querySelectorAll('.error-message').forEach(el => el.remove());
+    
+    // Réinitialiser les bordures
+    document.querySelectorAll('.form-group input, .form-group select').forEach(input => {
+        input.style.borderColor = '#ddd';
+    });
+}
+
+// Afficher un message de succès
+function showSuccessMessage(message) {
+    // Créer ou réutiliser l'élément de message
+    let successDiv = document.querySelector('.success-message');
+    
+    if (!successDiv) {
+        successDiv = document.createElement('div');
+        successDiv.className = 'success-message';
+        const form = document.getElementById('add-user-form');
+        form.parentNode.insertBefore(successDiv, form);
+    }
+    
+    successDiv.textContent = message;
+    successDiv.classList.add('show');
+    
+    // Cacher après 5 secondes
+    setTimeout(() => {
+        successDiv.classList.remove('show');
+    }, 5000);
+}
+
+// Afficher un message d'erreur général
+function showErrorMessage(message) {
+    alert(message); // Pour l'instant, on utilise alert
+}
+
+// Initialiser le formulaire
+function initForm() {
+    const form = document.getElementById('add-user-form');
+    if (form) {
+        // Réinitialiser les bordures en cas de focus
+        form.querySelectorAll('input, select').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#3498db';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.borderColor = '#ddd';
+            });
+        });
+    }
+}
+
+// Initialiser quand la page est chargée
+document.addEventListener('DOMContentLoaded', initForm);

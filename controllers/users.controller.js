@@ -119,3 +119,65 @@ exports.delete = async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur lors de la suppression de l\'utilisateur' });
     }
 };
+
+
+exports.register = async (req, res) => {
+    try {
+        const { email, password, full_name, role = 'client' } = req.body;
+        
+        console.log('📝 Données reçues:', { email, full_name, role });
+        
+        // 1. Vérifier les champs obligatoires
+        if (!email || !password) {
+            return res.status(400).json({ 
+                error: 'Email et mot de passe requis' 
+            });
+        }
+        
+        // 2. Vérifier si l'email existe déjà
+        // NOTE: Assurez-vous que 'db' est bien défini dans votre controller
+        const existing = await db.query(
+            'SELECT id FROM users WHERE email = $1', 
+            [email]
+        );
+        
+        if (existing.rows.length > 0) {
+            return res.status(400).json({ 
+                error: 'Email déjà utilisé' 
+            });
+        }
+        
+        // 3. Hasher le mot de passe (assurez-vous que bcrypt est installé)
+        const bcrypt = require('bcrypt');
+        const hashedPassword = await bcrypt.hash(password, 10);
+        
+        // 4. Insérer dans la base de données
+        const result = await db.query(
+            `INSERT INTO users (email, password_hash, full_name, role) 
+             VALUES ($1, $2, $3, $4) 
+             RETURNING id, email, full_name, role, created_at`,
+            [email, hashedPassword, full_name || null, role]
+        );
+        
+        const newUser = result.rows[0];
+        
+        console.log('✅ Utilisateur créé:', newUser.id);
+        
+        // 5. Répondre avec succès
+        res.status(201).json({
+            success: true,
+            message: 'Utilisateur créé',
+            user: newUser
+        });
+        
+    } catch (error) {
+        console.error('❌ Erreur register:', error);
+        
+        // Message d'erreur plus simple
+        res.status(500).json({ 
+            error: 'Erreur création utilisateur',
+            // Détails en développement seulement
+            ...(process.env.NODE_ENV === 'development' && { details: error.message })
+        });
+    }
+};

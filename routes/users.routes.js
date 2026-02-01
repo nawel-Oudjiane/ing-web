@@ -16,4 +16,6 @@ router.put('/:id/status', verifyTokenAdmin, UsersController.updateStatus);
 // DELETE user (admin uniquement) - AJOUTEZ CETTE LIGNE
 router.delete('/:id', verifyTokenAdmin, UsersController.delete);
 
+router.post('/register', verifyTokenAdmin, UsersController.register);
+
 module.exports = router;
