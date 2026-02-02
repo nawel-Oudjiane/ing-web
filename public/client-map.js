@@ -62,7 +62,7 @@ function initClientMap(rooms) {
         clientMap.setView([roomsWithCoords[0].latitude, roomsWithCoords[0].longitude], 12);
     }
     
-    console.log("✅ Carte client prête !");
+    console.log(" Carte client prête !");
 }
 
 // Exposer

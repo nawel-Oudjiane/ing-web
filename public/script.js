@@ -43,8 +43,7 @@ function checkAuthStatus() {
 // ================================
 // CONFIGURATION DASHBOARD SELON RÔLE
 // ================================
-// ================================
-// CONFIGURATION DASHBOARD SELON RÔLE
+
 
 function setupDashboard() {
     if (!currentUser) return;
@@ -149,11 +148,13 @@ function logout() {
 
 
 // ================================
-// CHARGER SALLES - VERSION 
+// CHARGER SALLES 
 // ================================
+
 // ================================
-// CHARGER SALLES - VERSION ULTRA-SIMPLE
+// CHARGER SALLES - VERSION SIMPLIFIÉE
 // ================================
+
 async function loadRooms(targetListId) {
     try {
         console.log(`loadRooms appelé pour: ${targetListId}`);
@@ -205,7 +206,7 @@ async function loadRooms(targetListId) {
             return;
         }
 
-        // AFFICHER LES SALLES
+        // AFFICHER LES SALLES - VERSION SIMPLIFIÉE
         roomsToShow.forEach(room => {
             const card = document.createElement('div');
             card.className = 'room-card';
@@ -216,23 +217,28 @@ async function loadRooms(targetListId) {
             if (!currentUser) {
                 // Visiteur
                 actionButtons = `
-                    <button onclick="viewRoomDetails(${room.id})" class="btn btn-info">
-                        <i class="fas fa-eye"></i> Détails
+                    <button onclick="viewRoomDetails(${room.id})" class="btn btn-info" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-eye"></i> Voir détails complets
                     </button>
                 `;
             }
             else if (currentUser.role === 'client') {
                 // Client
                 actionButtons = `
-                    <button onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})" class="btn btn-success">
-                        <i class="fas fa-calendar-plus"></i> Réserver
-                    </button>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 10px;">
+                        <button onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})" class="btn btn-success" style="flex: 1;">
+                            <i class="fas fa-calendar-plus"></i> Réserver
+                        </button>
+                        <button onclick="viewRoomDetails(${room.id})" class="btn btn-info" style="flex: 1;">
+                            <i class="fas fa-eye"></i> Détails
+                        </button>
+                    </div>
                 `;
             }
             else if (currentUser.role === 'admin') {
                 // Admin
                 actionButtons = `
-                    <button onclick="deleteRoom(${room.id})" class="btn btn-danger">
+                    <button onclick="deleteRoom(${room.id})" class="btn btn-danger" style="width: 100%; margin-top: 10px;">
                         <i class="fas fa-trash"></i> Supprimer
                     </button>
                 `;
@@ -241,22 +247,49 @@ async function loadRooms(targetListId) {
                 // Propriétaire - TOUJOURS Modifier/Supprimer sur son dashboard
                 actionButtons = `
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
-                        <button onclick="editRoom(${room.id})" class="btn btn-warning">
+                        <button onclick="editRoom(${room.id})" class="btn btn-warning" style="flex: 1;">
                             <i class="fas fa-edit"></i> Modifier
                         </button>
-                        <button onclick="deleteRoom(${room.id})" class="btn btn-danger">
+                        <button onclick="deleteRoom(${room.id})" class="btn btn-danger" style="flex: 1;">
                             <i class="fas fa-trash"></i> Supprimer
                         </button>
                     </div>
                 `;
             }
 
+            // AFFICHAGE SIMPLIFIÉ - juste l'essentiel
             card.innerHTML = `
-                <h4>${room.name}</h4>
-                <p>${room.description || 'Pas de description'}</p>
-                <p><strong>Capacité:</strong> ${room.capacity} personnes</p>
-                <p><strong>Prix:</strong> ${room.price_per_hour} Da / heure</p>
-                <p><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</p>
+                <!-- En-tête avec nom et prix -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                    <h4 style="margin: 0; color: var(--primary); font-size: 1.2rem;">${room.name}</h4>
+                    <span style="background: var(--success); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.9rem; font-weight: bold;">
+                        ${room.price_per_hour} Da/h
+                    </span>
+                </div>
+                
+                <!-- Description courte (max 2 lignes) -->
+                <p style="color: #666; margin: 0 0 12px 0; font-size: 0.95rem; line-height: 1.4; max-height: 2.8em; overflow: hidden;">
+                    ${room.description ? 
+                        (room.description.length > 100 ? 
+                            room.description.substring(0, 100) + '...' : 
+                            room.description) : 
+                        '<span style="color: #999; font-style: italic;">Aucune description</span>'
+                    }
+                </p>
+                
+                <!-- Infos essentielles en icônes -->
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; align-items: center; gap: 5px; color: #666;">
+                        <i class="fas fa-users" style="color: #2196f3;"></i>
+                        <span style="font-size: 0.9rem;">${room.capacity} pers.</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px; color: #666;">
+                        <i class="fas fa-map-marker-alt" style="color: #f44336;"></i>
+                        <span style="font-size: 0.9rem;">${room.city || '?'}</span>
+                    </div>
+                </div>
+                
+                <!-- Boutons d'action -->
                 ${actionButtons}
             `;
             list.appendChild(card);
@@ -267,7 +300,6 @@ async function loadRooms(targetListId) {
         alert('Erreur lors du chargement des salles');
     }
 }
-
 
 // ================================
 // AJOUT SALLE (OWNER)
@@ -1426,9 +1458,7 @@ async function loadOwnerRooms() {
         list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement de vos salles</p></div>';
     }
 }
-// ================================
-// SUPPRIMER SALLE
-// ================================
+
 // ================================
 // SUPPRIMER SALLE
 // ================================
@@ -1485,7 +1515,7 @@ async function loadOwnerRooms(containerId = 'rooms-list') {
 
         const rooms = await res.json();
 
-        // 🔒 Filtrage STRICT côté front
+        // Filtrage STRICT côté front
         const ownerRooms = rooms.filter(
             room => room.owner_id === currentUser.id
         );
