@@ -1,7 +1,7 @@
 // middleware/auth.js
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');//import jsonwebtoken pour gérer les tokens JWT
 
-// Middleware général : vérifie que le token est présent et valide
+// Middleware général : vérifie que le token est présent et valide, pour tous les rôles
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
     
@@ -56,3 +56,4 @@ module.exports = {
     verifyTokenOwner,
     verifyTokenClient
 };
+// ce code définit des middlewares pour vérifier les tokens JWT et les rôles des utilisateurs dans une application Express.js.

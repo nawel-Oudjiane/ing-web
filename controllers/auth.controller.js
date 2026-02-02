@@ -66,3 +66,6 @@ const authController = {
 };
 
 module.exports = authController;
+// Ce code définit un contrôleur d'authentification pour une application Express.js, avec des méthodes pour l'inscription et la connexion des utilisateurs.
+//a quoi servent les controleurs dans une application expressjs?
+//Les contrôleurs dans une application Express.js servent à gérer la logique métier associée aux différentes routes de l'application. Ils reçoivent les requêtes HTTP, interagissent avec les modèles pour accéder aux données, et renvoient les réponses appropriées au client.

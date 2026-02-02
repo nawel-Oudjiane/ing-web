@@ -1,7 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
-const cors = require('cors');
-require('dotenv').config();
+const cors = require('cors');//package pour gérer les erreurs de CORS,cors c'est un package qui permet d'autoriser les requêtes entre différentes origines
+require('dotenv').config();//dotenv c'est un package qui permet de gérer les variables d'environnement
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(morgan('dev'));
+app.use(morgan('dev'));//morgan c'est un package qui permet de logger les requêtes HTTP dans la console
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));

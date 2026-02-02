@@ -90,3 +90,6 @@ class User {
 }
 
 module.exports = User;
+
+//les modèles représentent la structure des données et les interactions avec la base de données, tandis que les contrôleurs orchestrent le flux de données entre les modèles et les vues (ou réponses HTTP).
+//Dans une application Express.js, les modèles sont responsables de la gestion des données, y compris la définition des schémas, la validation et les opérations CRUD (Create, Read, Update, Delete) sur la base de données. Ils encapsulent la logique liée aux données et fournissent une interface pour interagir avec celles-ci.
