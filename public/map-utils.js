@@ -8,33 +8,34 @@ const MapUtils = {
     },
     
     // Initialiser une carte basique
-    initMap: function(elementId, center = [36.7525, 3.0420], zoom = 6) {
-        if (!this.isLeafletLoaded()) {
-            console.error("❌ Leaflet non chargé !");
-            return null;
-        }
+   initMap: function(elementId, center = [36.7525, 3.0420], zoom = 6) {
+    if (!this.isLeafletLoaded()) {
+        console.error("❌ Leaflet non chargé !");
+        return null;
+    }
+    
+    const mapElement = document.getElementById(elementId);
+    if (!mapElement) {
+        console.error(`❌ Élément #${elementId} non trouvé`);
+        return null;
+    }
+    
+    try {
+        const map = L.map(elementId).setView(center, zoom);
         
-        const mapElement = document.getElementById(elementId);
-        if (!mapElement) {
-            console.error(`❌ Élément #${elementId} non trouvé`);
-            return null;
-        }
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
         
-        try {
-            const map = L.map(elementId).setView(center, zoom);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap',
-                maxZoom: 19
-            }).addTo(map);
-            
-            console.log(`✅ Carte #${elementId} initialisée`);
-            return map;
-        } catch (error) {
-            console.error(`❌ Erreur création carte:`, error);
-            return null;
-        }
-    },
+        console.log(`✅ Carte #${elementId} initialisée`);
+        return map;
+    } catch (error) {
+        console.error(`❌ Erreur création carte:`, error);
+        return null;
+    }
+},
+
     
     // Marqueur personnalisé pour salle
     createRoomIcon: function() {

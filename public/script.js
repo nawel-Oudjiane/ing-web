@@ -44,26 +44,37 @@ function checkAuthStatus() {
 // CONFIGURATION DASHBOARD SELON RÔLE
 // ================================
 
-
+// ================================
+// CONFIGURATION DASHBOARD SELON RÔLE
+// ================================
 function setupDashboard() {
     if (!currentUser) return;
 
     if (currentUser.role === 'admin') {
         const welcomeDiv = document.getElementById('admin-welcome');
-        if (welcomeDiv) welcomeDiv.innerHTML = `<h3>👋 Bienvenue ${currentUser.full_name}</h3>`;
+        if (welcomeDiv) {
+            // NE PAS utiliser innerHTML qui supprime tout !
+            const h3 = welcomeDiv.querySelector('h3');
+            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+        }
         loadUsers();
         loadStats();
         loadRooms('rooms-list');
-    } else if (currentUser.role === 'owner') {
+    } 
+    else if (currentUser.role === 'owner') {
         const welcomeDiv = document.getElementById('owner-welcome');
-        if (welcomeDiv) welcomeDiv.innerHTML = `<h3>👋 Bienvenue ${currentUser.full_name}</h3>`;
-        
-        // IMPORTANT : Utiliser loadRooms avec 'owner-rooms-list'
-        loadRooms('owner-rooms-list'); // <-- Ça va filtrer automatiquement
-        
-    } else if (currentUser.role === 'client') {
+        if (welcomeDiv) {
+            const h3 = welcomeDiv.querySelector('h3');
+            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+        }
+        loadRooms('owner-rooms-list');
+    } 
+    else if (currentUser.role === 'client') {
         const welcomeDiv = document.getElementById('client-welcome');
-        if (welcomeDiv) welcomeDiv.innerHTML = `<h3>👋 Bienvenue ${currentUser.full_name}</h3>`;
+        if (welcomeDiv) {
+            const h3 = welcomeDiv.querySelector('h3');
+            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+        }
         loadRooms('rooms-list');
         loadClientBookings();
     }
@@ -150,14 +161,9 @@ function logout() {
 // ================================
 // CHARGER SALLES 
 // ================================
-
-// ================================
-// CHARGER SALLES - VERSION SIMPLIFIÉE
-// ================================
-
 async function loadRooms(targetListId) {
     try {
-        console.log(`loadRooms appelé pour: ${targetListId}`);
+        console.log(`Chargement salles pour: ${targetListId}`);
         
         const res = await fetch('/api/rooms', {
             headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}
@@ -172,6 +178,7 @@ async function loadRooms(targetListId) {
             return;
         }
         
+        // VIDER proprement
         list.innerHTML = '';
 
         if (!rooms.length) { 
@@ -179,34 +186,18 @@ async function loadRooms(targetListId) {
             return; 
         }
 
-        // IMPORTANT: Filtrer pour le dashboard owner
+        // Filtrer pour le propriétaire
         let roomsToShow = rooms;
         if (targetListId === 'owner-rooms-list' && currentUser?.role === 'owner') {
-            roomsToShow = rooms.filter(room => {
-                console.log(`Filtrage: salle ${room.id} - owner:${room.owner_id}, moi:${currentUser.id}`);
-                return room.owner_id == currentUser.id;
-            });
-            console.log(`Dashboard owner: ${rooms.length} total -> ${roomsToShow.length} salles du proprio`);
+            roomsToShow = rooms.filter(room => room.owner_id == currentUser.id);
         }
 
         if (!roomsToShow.length) {
-            if (targetListId === 'owner-rooms-list') {
-                list.innerHTML = `
-                    <div style="text-align: center; padding: 3rem; color: #666;">
-                        <i class="fas fa-door-closed" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-                        <p>Vous n'avez pas encore ajouté de salles</p>
-                        <button class="btn btn-primary" onclick="document.querySelector('#owner-section').scrollIntoView()">
-                            <i class="fas fa-plus"></i> Ajouter une salle
-                        </button>
-                    </div>
-                `;
-            } else {
-                list.innerHTML = '<p>Aucune salle disponible</p>';
-            }
+            list.innerHTML = '<p>Aucune salle disponible</p>';
             return;
         }
 
-        // AFFICHER LES SALLES - VERSION SIMPLIFIÉE
+        // AFFICHER LES SALLES
         roomsToShow.forEach(room => {
             const card = document.createElement('div');
             card.className = 'room-card';
@@ -215,15 +206,13 @@ async function loadRooms(targetListId) {
             let actionButtons = '';
             
             if (!currentUser) {
-                // Visiteur
                 actionButtons = `
                     <button onclick="viewRoomDetails(${room.id})" class="btn btn-info" style="width: 100%; margin-top: 10px;">
-                        <i class="fas fa-eye"></i> Voir détails complets
+                        <i class="fas fa-eye"></i> Voir détails
                     </button>
                 `;
             }
             else if (currentUser.role === 'client') {
-                // Client
                 actionButtons = `
                     <div style="display: flex; gap: 0.5rem; margin-top: 10px;">
                         <button onclick="openBookingModal(${room.id}, '${room.name}', ${room.price_per_hour})" class="btn btn-success" style="flex: 1;">
@@ -236,7 +225,6 @@ async function loadRooms(targetListId) {
                 `;
             }
             else if (currentUser.role === 'admin') {
-                // Admin
                 actionButtons = `
                     <button onclick="deleteRoom(${room.id})" class="btn btn-danger" style="width: 100%; margin-top: 10px;">
                         <i class="fas fa-trash"></i> Supprimer
@@ -244,7 +232,6 @@ async function loadRooms(targetListId) {
                 `;
             }
             else if (currentUser.role === 'owner') {
-                // Propriétaire - TOUJOURS Modifier/Supprimer sur son dashboard
                 actionButtons = `
                     <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
                         <button onclick="editRoom(${room.id})" class="btn btn-warning" style="flex: 1;">
@@ -257,56 +244,39 @@ async function loadRooms(targetListId) {
                 `;
             }
 
-            // AFFICHAGE SIMPLIFIÉ - juste l'essentiel
             card.innerHTML = `
-                <!-- En-tête avec nom et prix -->
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
-                    <h4 style="margin: 0; color: var(--primary); font-size: 1.2rem;">${room.name}</h4>
-                    <span style="background: var(--success); color: white; padding: 3px 10px; border-radius: 15px; font-size: 0.9rem; font-weight: bold;">
-                        ${room.price_per_hour} Da/h
-                    </span>
-                </div>
-                
-                <!-- Description courte (max 2 lignes) -->
-                <p style="color: #666; margin: 0 0 12px 0; font-size: 0.95rem; line-height: 1.4; max-height: 2.8em; overflow: hidden;">
-                    ${room.description ? 
-                        (room.description.length > 100 ? 
-                            room.description.substring(0, 100) + '...' : 
-                            room.description) : 
-                        '<span style="color: #999; font-style: italic;">Aucune description</span>'
-                    }
+                <h4 style="color: var(--primary); margin-bottom: 10px;">${room.name}</h4>
+                <p style="color: #666; margin-bottom: 10px;">
+                    ${room.description ? (room.description.length > 100 ? room.description.substring(0, 100) + '...' : room.description) : 'Aucune description'}
                 </p>
-                
-                <!-- Infos essentielles en icônes -->
                 <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                    <div style="display: flex; align-items: center; gap: 5px; color: #666;">
-                        <i class="fas fa-users" style="color: #2196f3;"></i>
-                        <span style="font-size: 0.9rem;">${room.capacity} pers.</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px; color: #666;">
-                        <i class="fas fa-map-marker-alt" style="color: #f44336;"></i>
-                        <span style="font-size: 0.9rem;">${room.city || '?'}</span>
-                    </div>
+                    <span><i class="fas fa-users" style="color: #2196f3;"></i> ${room.capacity} pers.</span>
+                    <span><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i> ${room.price_per_hour} Da/h</span>
+                    <span><i class="fas fa-map-marker-alt" style="color: #f44336;"></i> ${room.city || '?'}</span>
                 </div>
-                
-                <!-- Boutons d'action -->
                 ${actionButtons}
             `;
             list.appendChild(card);
         });
 
+        // Mettre à jour la carte SI elle existe
+        if (document.getElementById('client-map') && typeof initClientMap === 'function') {
+            console.log("Mise à jour de la carte");
+            initClientMap(roomsToShow);
+        }
+
     } catch (err) {
-        console.error(err);
-        alert('Erreur lors du chargement des salles');
+        console.error('Erreur:', err);
+        const list = document.getElementById(targetListId);
+        if (list) {
+            list.innerHTML = '<p>Erreur lors du chargement des salles</p>';
+        }
     }
 }
-
 // ================================
 // AJOUT SALLE (OWNER)
 // ================================
-// ================================
-// AJOUT SALLE (OWNER) - VERSION SIMPLE
-// ================================
+
 async function addRoom() {
     if (!currentToken || currentUser.role !== 'owner') return alert('Accès refusé');
 
@@ -346,6 +316,9 @@ async function addRoom() {
 // ================================
 // AJOUTER SALLE (POUR LE DASHBOARD OWNER HTML)
 // ================================
+// ================================
+// AJOUTER SALLE (POUR LE DASHBOARD OWNER HTML)
+// ================================
 async function addOwnerRoom() {
     if (!currentToken || currentUser?.role !== 'owner') return alert('Accès refusé');
 
@@ -359,13 +332,24 @@ async function addOwnerRoom() {
     const latitude = document.getElementById('room-latitude').value;
     const longitude = document.getElementById('room-longitude').value;
 
-    // Validation
+    // Validation RENFORCÉE
     if (!name || !description || !capacity || !price || !city) {
         return alert('Veuillez remplir les champs obligatoires (*)');
     }
     
+    // FORCER les coordonnées
     if (!latitude || !longitude) {
-        return alert('Veuillez définir l\'emplacement sur la carte');
+        // Essayez de géocoder l'adresse automatiquement
+        const fullAddress = `${address || ''}, ${city}`;
+        const coords = await geocodeAddress(fullAddress);
+        
+        if (coords) {
+            latitude = coords.lat;
+            longitude = coords.lng;
+            console.log(`📍 Coordonnées géocodées: ${latitude}, ${longitude}`);
+        } else {
+            return alert('Veuillez définir l\'emplacement sur la carte. Cliquez sur la carte pour positionner la salle.');
+        }
     }
 
     try {
@@ -393,7 +377,7 @@ async function addOwnerRoom() {
             return alert(data.error || 'Erreur ajout salle');
         }
         
-        alert('✅ Salle ajoutée avec succès !');
+        alert('✅ Salle ajoutée avec succès ! Elle apparaîtra sur la carte.');
         
         // Recharger les salles
         loadRooms('owner-rooms-list');
@@ -417,6 +401,30 @@ async function addOwnerRoom() {
     }
 }
 
+// Fonction de géocodage
+async function geocodeAddress(address) {
+    if (!address || address.length < 3) return null;
+    
+    try {
+        const response = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=dz`
+        );
+        
+        if (!response.ok) return null;
+        
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lng: parseFloat(data[0].lon)
+            };
+        }
+    } catch (error) {
+        console.error('Erreur géocodage:', error);
+    }
+    
+    return null;
+}
 // ================================
 // EDITER SALLE
 // ================================
@@ -456,6 +464,352 @@ function cancelEdit() {
     const editForm = document.getElementById('edit-room-form');
     if (editForm) {
         editForm.style.display = 'none';
+    }
+}
+
+// ================================
+// MODIFIER LA LOCALISATION D'UNE SALLE sur la map
+// ================================
+async function editRoomWithMap(roomId) {
+    currentEditRoomId = roomId;
+    
+    try {
+        const res = await fetch(`/api/rooms/${roomId}`, {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!res.ok) throw new Error('Erreur chargement salle');
+        const room = await res.json();
+        
+        console.log('📋 Chargement salle pour édition:', room);
+        
+        // Ouvrir un modal pour la localisation
+        const modal = document.createElement('div');
+        modal.id = 'map-edit-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; padding: 2rem; border-radius: 12px; max-width: 600px; width: 90%;">
+                <h3><i class="fas fa-map-marker-alt"></i> Localiser la salle</h3>
+                <p style="margin: 0.5rem 0 1.5rem 0; color: #666;">
+                    <strong>${room.name}</strong> - ${room.city || 'Ville non spécifiée'}
+                </p>
+                
+                <div style="margin-bottom: 1rem;">
+                    <div id="edit-location-map" style="height: 300px; border-radius: 8px; border: 2px solid #ddd;"></div>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                        <i class="fas fa-info-circle"></i> Cliquez sur la carte ou recherchez une adresse
+                    </p>
+                </div>
+                
+                <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                    <input type="text" id="search-address" placeholder="Rechercher une adresse..." 
+                           style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <button onclick="searchOnEditMap()" style="padding: 10px 20px; background: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-search"></i> Chercher
+                    </button>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Latitude:</label>
+                        <input type="number" id="edit-latitude" step="any" 
+                               value="${room.latitude || ''}" 
+                               placeholder="Ex: 36.7525"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 5px; font-weight: 500;">Longitude:</label>
+                        <input type="number" id="edit-longitude" step="any" 
+                               value="${room.longitude || ''}" 
+                               placeholder="Ex: 3.0420"
+                               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button onclick="saveRoomLocation(${roomId})" 
+                            style="flex: 1; padding: 12px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 500;">
+                        <i class="fas fa-save"></i> Enregistrer la localisation
+                    </button>
+                    <button onclick="closeEditMapModal()" 
+                            style="flex: 1; padding: 12px; background: #f5f5f5; color: #333; border: 1px solid #ddd; border-radius: 4px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Annuler
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Initialiser la carte d'édition
+        setTimeout(() => initEditMap(room), 100);
+        
+    } catch (error) {
+        console.error('Erreur:', error);
+        alert('Erreur lors du chargement de la salle');
+    }
+}
+
+
+function initEditMap(room) {
+    const mapElement = document.getElementById('edit-location-map');
+    if (!mapElement || typeof L === 'undefined') return;
+    
+    // Centre par défaut sur l'Algérie ou coordonnées existantes
+    const center = room.latitude && room.longitude 
+        ? [room.latitude, room.longitude]
+        : [36.7525, 3.0420];
+    
+    const editMap = L.map('edit-location-map').setView(center, 12);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(editMap);
+    
+    // Créer un marqueur draggable
+    let marker = null;
+    
+    if (room.latitude && room.longitude) {
+        marker = L.marker([room.latitude, room.longitude], { draggable: true }).addTo(editMap);
+    } else {
+        marker = L.marker(center, { draggable: true }).addTo(editMap);
+    }
+    
+    // Mettre à jour les champs quand le marqueur est déplacé
+    marker.on('dragend', function() {
+        const position = marker.getLatLng();
+        document.getElementById('edit-latitude').value = position.lat.toFixed(6);
+        document.getElementById('edit-longitude').value = position.lng.toFixed(6);
+    });
+    
+    // Sauvegarder la carte et le marqueur pour y accéder plus tard
+    window.editMap = editMap;
+    window.editMarker = marker;
+    
+    // Ajouter un événement de clic sur la carte
+    editMap.on('click', function(e) {
+        if (!marker) {
+            marker = L.marker(e.latlng, { draggable: true }).addTo(editMap);
+        } else {
+            marker.setLatLng(e.latlng);
+        }
+        
+        document.getElementById('edit-latitude').value = e.latlng.lat.toFixed(6);
+        document.getElementById('edit-longitude').value = e.latlng.lng.toFixed(6);
+    });
+}
+
+function searchOnEditMap() {
+    const address = document.getElementById('search-address').value;
+    if (!address || address.length < 3) return;
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&countrycodes=dz`)
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                
+                window.editMap.setView([lat, lng], 14);
+                
+                if (window.editMarker) {
+                    window.editMarker.setLatLng([lat, lng]);
+                } else {
+                    window.editMarker = L.marker([lat, lng], { draggable: true }).addTo(window.editMap);
+                }
+                
+                document.getElementById('edit-latitude').value = lat;
+                document.getElementById('edit-longitude').value = lng;
+            } else {
+                alert('Adresse non trouvée');
+            }
+        })
+        .catch(err => console.error('Erreur recherche:', err));
+}
+
+async function saveRoomLocation(roomId) {
+    const latitudeInput = document.getElementById('edit-latitude');
+    const longitudeInput = document.getElementById('edit-longitude');
+    
+    if (!latitudeInput || !longitudeInput) {
+        alert('Erreur: champs non trouvés');
+        return;
+    }
+    
+    const latitude = latitudeInput.value.trim();
+    const longitude = longitudeInput.value.trim();
+    
+    // Validation
+    if (!latitude || !longitude) {
+        alert('Veuillez sélectionner un emplacement sur la carte');
+        return;
+    }
+    
+    const latNum = parseFloat(latitude);
+    const lngNum = parseFloat(longitude);
+    
+    if (isNaN(latNum) || isNaN(lngNum)) {
+        alert('Coordonnées invalides');
+        return;
+    }
+    
+    if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
+        alert('Coordonnées hors limites (lat: -90 à 90, lng: -180 à 180)');
+        return;
+    }
+    
+    // Afficher un indicateur de chargement
+    const saveBtn = document.querySelector('button[onclick="saveRoomLocation(' + roomId + ')"]');
+    const originalText = saveBtn.innerHTML;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+    saveBtn.disabled = true;
+    
+    try {
+        console.log(`💾 Sauvegarde localisation salle ${roomId}: ${latNum}, ${lngNum}`);
+        
+        // ENVOYER SEULEMENT les coordonnées, pas les autres champs
+        const res = await fetch(`/api/rooms/${roomId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({
+                latitude: latNum,
+                longitude: lngNum
+                // NE PAS envoyer les autres champs !
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.error || 'Erreur lors de la sauvegarde');
+        }
+        
+        console.log('✅ Réponse API:', data);
+        
+        alert('✅ Localisation enregistrée !');
+        closeEditMapModal();
+        
+        // Recharger les données après un court délai
+        setTimeout(() => {
+            // Recharger les salles selon la page actuelle
+            if (window.location.pathname.includes('dashboard-owner.html')) {
+                loadRooms('owner-rooms-list');
+            } else if (window.location.pathname.includes('dashboard-client.html')) {
+                loadRooms('rooms-list');
+            } else if (window.location.pathname.includes('index.html')) {
+                loadRooms('rooms-list');
+            }
+            
+            // Forcer un rechargement de la carte
+            if (typeof initClientMap === 'function') {
+                setTimeout(() => {
+                    fetch('/api/rooms')
+                        .then(res => res.json())
+                        .then(rooms => {
+                            console.log('🔄 Rechargement carte avec', rooms.length, 'salles');
+                            initClientMap(rooms);
+                        })
+                        .catch(err => console.error('Erreur rechargement:', err));
+                }, 500);
+            }
+        }, 1000);
+        
+    } catch (error) {
+        console.error('Erreur sauvegarde:', error);
+        alert(' Erreur: ' + error.message);
+        
+        // Réactiver le bouton
+        saveBtn.innerHTML = originalText;
+        saveBtn.disabled = false;
+    }
+}
+function closeEditMapModal() {
+    const modal = document.getElementById('map-edit-modal');
+    if (modal) {
+        document.body.removeChild(modal);
+    }
+    window.editMap = null;
+    window.editMarker = null;
+}
+
+// ================================
+// SUPPRIMER SALLE (owner/admin )
+// ================================
+async function deleteRoom(roomId) {
+    if (!currentToken || !currentUser) return alert('Vous devez être connecté');
+
+    const confirmDelete = confirm('Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.');
+    if (!confirmDelete) return;
+
+    try {
+        const res = await fetch(`/api/rooms/${roomId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (!res.ok) {
+            const data = await res.json();
+            return alert(data.error || 'Impossible de supprimer la salle');
+        }
+        alert('Salle supprimée !');
+        if (currentUser.role === 'owner') loadRooms('owner-rooms-list');
+        else loadRooms('rooms-list');
+    } catch (err) {
+        console.error(err);
+        alert('Erreur lors de la suppression de la salle');
+    }
+}
+
+// ================================
+// METTRE À JOUR SALLE (OWNER)
+// ================================
+async function updateRoom() {
+    if (!currentEditRoomId) return;
+
+    const name = document.getElementById('edit-room-name').value;
+    const description = document.getElementById('edit-room-description').value;
+    const capacity = parseInt(document.getElementById('edit-room-capacity').value);
+    const price_per_hour = parseFloat(document.getElementById('edit-room-price').value);
+    const city = document.getElementById('edit-room-city').value;
+
+    if (!name || !description || isNaN(capacity) || isNaN(price_per_hour) || !city) {
+        return alert("Veuillez remplir tous les champs correctement");
+    }
+
+    try {
+        const res = await fetch(`/api/rooms/${currentEditRoomId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({ name, description, capacity, price_per_hour, city })
+        });
+        
+        const data = await res.json();
+        if (data.error) return alert(data.error);
+
+        alert("✅ Salle modifiée avec succès !");
+        cancelEdit();
+        
+        // Recharger les salles
+        loadRooms('owner-rooms-list');
+        
+    } catch (err) {
+        console.error(err);
+        alert("❌ Erreur lors de la modification de la salle");
     }
 }
 
@@ -645,76 +999,6 @@ async function filterRooms() {
 }
 
 
-// ================================
-// SUPPRIMER SALLE
-// ================================
-async function deleteRoom(roomId) {
-    if (!currentToken || !currentUser) return alert('Vous devez être connecté');
-
-    const confirmDelete = confirm('Êtes-vous sûr de vouloir supprimer cette salle ? Cette action est irréversible.');
-    if (!confirmDelete) return;
-
-    try {
-        const res = await fetch(`/api/rooms/${roomId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        if (!res.ok) {
-            const data = await res.json();
-            return alert(data.error || 'Impossible de supprimer la salle');
-        }
-        alert('Salle supprimée !');
-        if (currentUser.role === 'owner') loadRooms('owner-rooms-list');
-        else loadRooms('rooms-list');
-    } catch (err) {
-        console.error(err);
-        alert('Erreur lors de la suppression de la salle');
-    }
-}
-
-// ================================
-// EDITER SALLE (OWNER / ADMIN)
-// ================================
-// ================================
-// METTRE À JOUR SALLE
-// ================================
-async function updateRoom() {
-    if (!currentEditRoomId) return;
-
-    const name = document.getElementById('edit-room-name').value;
-    const description = document.getElementById('edit-room-description').value;
-    const capacity = parseInt(document.getElementById('edit-room-capacity').value);
-    const price_per_hour = parseFloat(document.getElementById('edit-room-price').value);
-    const city = document.getElementById('edit-room-city').value;
-
-    if (!name || !description || isNaN(capacity) || isNaN(price_per_hour) || !city) {
-        return alert("Veuillez remplir tous les champs correctement");
-    }
-
-    try {
-        const res = await fetch(`/api/rooms/${currentEditRoomId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${currentToken}`
-            },
-            body: JSON.stringify({ name, description, capacity, price_per_hour, city })
-        });
-        
-        const data = await res.json();
-        if (data.error) return alert(data.error);
-
-        alert("✅ Salle modifiée avec succès !");
-        cancelEdit();
-        
-        // Recharger les salles
-        loadRooms('owner-rooms-list');
-        
-    } catch (err) {
-        console.error(err);
-        alert("❌ Erreur lors de la modification de la salle");
-    }
-}
 // ================================
 // ADMIN - UTILISATEURS ET STATS
 // ================================
@@ -1385,6 +1669,7 @@ async function loadRoomsWithMap(containerId = 'rooms-list') {
 window.loadRooms = loadRoomsWithMap;
 
 
+
 // ================================
 // FONCTION SPÉCIFIQUE PROPRIÉTAIRE - Charger uniquement ses salles
 // ================================
@@ -1479,7 +1764,7 @@ async function deleteRoom(roomId) {
             return alert(data.error || 'Impossible de supprimer la salle');
         }
         
-        alert('✅ Salle supprimée !');
+        alert(' Salle supprimée !');
         
         // Recharger selon la page
         if (window.location.pathname.includes('dashboard-owner.html')) {
@@ -1490,7 +1775,7 @@ async function deleteRoom(roomId) {
         
     } catch (err) {
         console.error(err);
-        alert('❌ Erreur lors de la suppression de la salle');
+        alert(' Erreur lors de la suppression de la salle');
     }
 }
 
@@ -1559,3 +1844,94 @@ async function loadOwnerRooms(containerId = 'rooms-list') {
             `<p style="color:red">Erreur chargement salles</p>`;
     }
 }
+
+
+
+// ================================
+// INITIALISATION CARTE
+// ================================
+function initializeMapForPage(rooms) {
+    console.log("🌍 Initialisation de la carte...");
+    
+    const mapElement = document.getElementById('client-map');
+    if (!mapElement) {
+        console.log("⚠️ Aucune carte à initialiser sur cette page");
+        return;
+    }
+    
+    // Vérifier si Leaflet est chargé
+    if (typeof L === 'undefined') {
+        console.error("❌ Leaflet non chargé !");
+        mapElement.innerHTML = `
+            <div class="map-error">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Carte non disponible</h3>
+                <p>Impossible de charger la carte. Vérifiez votre connexion.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    // Vérifier s'il y a des salles avec coordonnées
+    const roomsWithCoords = rooms.filter(r => r.latitude && r.longitude);
+    if (roomsWithCoords.length === 0) {
+        mapElement.innerHTML = `
+            <div class="map-empty-state">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Aucune salle avec localisation</h3>
+                <p>Les salles n'ont pas encore de coordonnées GPS</p>
+            </div>
+        `;
+        return;
+    }
+    
+    try {
+        // Créer la carte
+        const map = L.map('client-map').setView([36.7525, 3.0420], 6);
+        
+        // Ajouter la couche OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Ajouter des marqueurs pour chaque salle
+        roomsWithCoords.forEach(room => {
+            const marker = L.marker([room.latitude, room.longitude])
+                .addTo(map)
+                .bindPopup(`
+                    <div style="min-width: 200px;">
+                        <h4 style="margin: 0 0 8px 0; color: #4361ee;">${room.name}</h4>
+                        <p style="margin: 4px 0;"><i class="fas fa-users"></i> ${room.capacity} personnes</p>
+                        <p style="margin: 4px 0;"><i class="fas fa-money-bill-wave"></i> ${room.price_per_hour} Da/h</p>
+                        ${room.city ? `<p style="margin: 4px 0;"><i class="fas fa-map-marker-alt"></i> ${room.city}</p>` : ''}
+                        <button onclick="viewRoomDetails(${room.id})" 
+                                style="margin-top: 10px; padding: 6px 12px; background: #4361ee; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Voir détails
+                        </button>
+                    </div>
+                `);
+        });
+        
+        // Ajuster la vue pour inclure tous les marqueurs
+        if (roomsWithCoords.length > 1) {
+            const bounds = L.latLngBounds(roomsWithCoords.map(r => [r.latitude, r.longitude]));
+            map.fitBounds(bounds, { padding: [30, 30] });
+        } else if (roomsWithCoords.length === 1) {
+            map.setView([roomsWithCoords[0].latitude, roomsWithCoords[0].longitude], 12);
+        }
+        
+        console.log("✅ Carte initialisée avec succès !");
+        
+    } catch (error) {
+        console.error("❌ Erreur création carte:", error);
+        mapElement.innerHTML = `
+            <div class="map-error">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Erreur lors du chargement de la carte</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    }
+}
+

@@ -1,69 +1,29 @@
-/* style-map.css */
+/* style-map.css - VERSION ORIGINALE AMÉLIORÉE */
 /* Styles spécifiques pour les cartes */
 
 /* Carte Leaflet */
 #client-map, #owner-map {
     width: 100%;
+    height: 500px !important;
+    min-height: 500px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    margin-top: 1rem;
+    margin-bottom: 2rem;
     z-index: 1;
-    transition: all 0.3s ease;
-}
-
-#client-map:hover, #owner-map:hover {
-    border-color: var(--primary);
+    background: #f8f9fa;
+    position: relative;
 }
 
 .leaflet-container {
     font-family: 'Inter', sans-serif;
     font-size: 14px;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px;
 }
 
-/* Marqueurs personnalisés */
-.custom-room-marker {
-    background: none !important;
-    border: none !important;
-}
-
-.marker-icon {
-    width: 35px;
-    height: 35px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.marker-icon:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-/* Popups */
-.leaflet-popup-content {
-    margin: 12px 16px !important;
-    min-width: 200px;
-}
-
-.leaflet-popup-content-wrapper {
-    border-radius: 8px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Boutons carte */
-.leaflet-control-zoom a {
-    border-radius: 4px !important;
-    margin: 2px !important;
-    color: var(--dark) !important;
-    background: white !important;
-    border: 1px solid var(--border-color) !important;
-}
-
-/* État vide */
+/* États */
 .map-empty-state {
     display: flex;
     flex-direction: column;
@@ -81,116 +41,4 @@
     font-size: 3rem;
     margin-bottom: 1rem;
     color: #ccc;
-}
-
-/* Recherche d'adresse */
-.search-box {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.search-box input {
-    flex: 1;
-    padding: 0.75rem !important;
-}
-
-.search-box button {
-    padding: 0.75rem 1.5rem !important;
-    background: var(--primary) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    cursor: pointer !important;
-    transition: all 0.3s ease !important;
-}
-
-.search-box button:hover {
-    background: var(--primary-dark) !important;
-    transform: translateY(-1px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    #client-map {
-        height: 400px !important;
-    }
-    
-    #owner-map {
-        height: 250px !important;
-    }
-    
-    .leaflet-popup {
-        max-width: 250px !important;
-    }
-}
-
-
-/* Map spécifique pour propriétaire */
-.map-container {
-    height: 300px;
-    border-radius: 8px;
-    border: 2px solid var(--border-color);
-    margin: 1rem 0;
-    background: #f8f9fa;
-}
-
-.map-instruction {
-    display: block;
-    color: var(--gray);
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-}
-
-.search-box {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-}
-
-.search-box input {
-    flex: 1;
-    padding: 0.75rem !important;
-}
-
-.reviews-container {
-    background: var(--light);
-    padding: 1.5rem;
-    border-radius: var(--border-radius);
-    min-height: 100px;
-}
-
-.review-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 4px solid var(--warning);
-}
-
-.review-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
-
-.reviewer {
-    font-weight: 600;
-    color: var(--dark);
-}
-
-.review-rating {
-    color: #ffb400;
-}
-
-.review-content {
-    color: var(--gray);
-    margin-bottom: 0.5rem;
-    line-height: 1.5;
-}
-
-.review-footer {
-    font-size: 0.85rem;
-    color: var(--gray-light);
 }

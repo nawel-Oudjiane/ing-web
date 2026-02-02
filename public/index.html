@@ -1,3 +1,4 @@
+<!--public/index.html-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,12 +8,9 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Leaflet CSS -->
-     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""/>
-      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossorigin=""></script>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <link rel="stylesheet" href="style-map.css"> <!-- AJOUTEZ -->
 </head>
 <body>
     <!-- NAVBAR -->
@@ -45,8 +43,10 @@
                 <p>Connectez-vous pour réserver des salles</p>
             </div>
         </section>
+       
 
-        <!-- VISITEUR (auth) -->
+
+        <!-- Auth) -->
         <section id="visitor-view" class="auth-section">
             <div class="auth-card">
                 <h3><i class="fas fa-user-plus"></i> Inscription</h3>
@@ -75,11 +75,12 @@
            </div>
         </section>
 
-        <!-- Carte pour clients -->
+        <!-- MAPPPPCarte pour clients -->
        <section id="map-section">
-             <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
-        <div id="client-map" style="height: 500px; border-radius: var(--border-radius); margin-top: 1rem;"></div>
-     </section>
+    <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
+    <div id="client-map" style="height: 500px; border-radius: 12px; border: 2px solid #e0e0e0; margin-top: 1rem;"></div>
+</section>
+
     </div>
 
     <!-- FOOTER -->
@@ -88,9 +89,58 @@
     </footer>
 
     <script src="script.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="map-utils.js"></script>
     <script src="client-map.js"></script>
     <script src="room-details.js"></script> 
+    <!-- À la fin de index.html, juste avant </body> -->
+
+
+
+    <!--TEST rapideeeeeeee-->
+<script>
+// SCRIPT DE TEST RAPIDE
+console.log("🧪 Test de la carte...");
+
+function testMap() {
+    const mapElement = document.getElementById('client-map');
+    if (!mapElement) {
+        console.error("❌ #client-map non trouvé");
+        return;
+    }
+    
+    console.log("✅ #client-map trouvé");
+    console.log("📏 Taille:", mapElement.offsetWidth, "x", mapElement.offsetHeight);
+    
+    // Forcer un reflow
+    mapElement.style.display = 'none';
+    mapElement.offsetHeight; // trigger reflow
+    mapElement.style.display = 'block';
+    
+    // Vérifier Leaflet
+    if (typeof L === 'undefined') {
+        console.error("❌ Leaflet non chargé !");
+        return;
+    }
+    
+    console.log("✅ Leaflet est chargé");
+    
+    // Tester la création d'une carte
+    try {
+        const testMap = L.map('client-map').setView([36.7525, 3.0420], 6);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(testMap);
+        console.log("✅ Carte de test créée avec succès !");
+        
+        // Supprimer la carte de test
+        testMap.remove();
+        
+    } catch (error) {
+        console.error("❌ Erreur création carte test:", error);
+    }
+}
+
+// Lancer le test
+setTimeout(testMap, 1000);
+</script>
+    
 </body>
 </html>

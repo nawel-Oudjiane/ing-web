@@ -1,4 +1,4 @@
-// controllers/rooms.controller.js - VERSION CORRIGÉE
+// controllers/rooms.controller.js 
 const db = require('../config/database');
 
 // GET toutes les salles (avec filtre selon rôle)
@@ -146,7 +146,8 @@ exports.create = async (req, res) => {
     }
 };
 
-// UPDATE
+// ------UPDATE
+// UPDATE - MODIFIEZ CETTE FONCTION
 exports.update = async (req, res) => {
     try {
         const { id } = req.params;
@@ -171,30 +172,103 @@ exports.update = async (req, res) => {
 
         const { name, description, capacity, price_per_hour, city, address, latitude, longitude } = req.body;
 
-        const result = await db.query(
-            `UPDATE rooms
-             SET name=$1, description=$2, capacity=$3, 
-                 price_per_hour=$4, city=$5, address=$6,
-                 latitude=$7, longitude=$8,
-                 updated_at=CURRENT_TIMESTAMP
-             WHERE id=$9 RETURNING *`,
-            [
-                name, 
-                description, 
-                parseInt(capacity), 
-                parseFloat(price_per_hour), 
-                city,
-                address || null,
-                latitude ? parseFloat(latitude) : null,
-                longitude ? parseFloat(longitude) : null,
-                id
-            ]
-        );
+        // DEBUG: Voir ce qui est envoyé
+        console.log(`🔄 Mise à jour salle ${id} par ${user.role} ${user.id}`);
+        console.log('📦 Données reçues:', req.body);
+        console.log('📍 Coordonnées:', { latitude, longitude });
 
-        res.json(result.rows[0]);
+        // Construire la requête SQL dynamiquement
+        const updates = [];
+        const values = [];
+        let paramIndex = 1;
+
+        // Ajouter seulement les champs qui sont fournis
+        if (name !== undefined) {
+            updates.push(`name = $${paramIndex}`);
+            values.push(name);
+            paramIndex++;
+        }
+        
+        if (description !== undefined) {
+            updates.push(`description = $${paramIndex}`);
+            values.push(description);
+            paramIndex++;
+        }
+        
+        if (capacity !== undefined) {
+            updates.push(`capacity = $${paramIndex}`);
+            values.push(parseInt(capacity));
+            paramIndex++;
+        }
+        
+        if (price_per_hour !== undefined) {
+            updates.push(`price_per_hour = $${paramIndex}`);
+            values.push(parseFloat(price_per_hour));
+            paramIndex++;
+        }
+        
+        if (city !== undefined) {
+            updates.push(`city = $${paramIndex}`);
+            values.push(city);
+            paramIndex++;
+        }
+        
+        if (address !== undefined) {
+            updates.push(`address = $${paramIndex}`);
+            values.push(address);
+            paramIndex++;
+        }
+        
+        // IMPORTANT: Toujours mettre à jour latitude et longitude ensemble
+        if (latitude !== undefined && longitude !== undefined) {
+            updates.push(`latitude = $${paramIndex}`);
+            values.push(parseFloat(latitude));
+            paramIndex++;
+            
+            updates.push(`longitude = $${paramIndex}`);
+            values.push(parseFloat(longitude));
+            paramIndex++;
+            
+            console.log(`📍 Coordonnées mises à jour: ${latitude}, ${longitude}`);
+        } else if (latitude !== undefined || longitude !== undefined) {
+            // Si un seul des deux est fourni, c'est une erreur
+            return res.status(400).json({ 
+                error: 'Les deux coordonnées (latitude ET longitude) doivent être fournies ensemble' 
+            });
+        }
+
+        // Toujours ajouter updated_at
+        updates.push(`updated_at = CURRENT_TIMESTAMP`);
+
+        if (updates.length === 0) {
+            return res.status(400).json({ error: 'Aucune donnée à mettre à jour' });
+        }
+
+        // Ajouter l'ID à la fin
+        values.push(id);
+
+        const query = `
+            UPDATE rooms
+            SET ${updates.join(', ')}
+            WHERE id = $${paramIndex}
+            RETURNING *
+        `;
+
+        console.log('📝 Requête SQL:', query);
+        console.log('📝 Valeurs:', values);
+
+        const result = await db.query(query, values);
+
+        console.log(`✅ Salle ${id} mise à jour avec succès`);
+        
+        res.json({
+            success: true,
+            message: 'Salle mise à jour',
+            room: result.rows[0]
+        });
     } catch (err) {
         console.error('❌ Erreur update:', err);
-        res.status(500).json({ error: 'Erreur modification salle' });
+        res.status(500).json({ error: 'Erreur modification salle', details: err.message });
     }
 };
 
