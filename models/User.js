@@ -1,6 +1,6 @@
-// models/User.js
-const db = require('../config/database');
-const bcrypt = require('bcryptjs');
+// models/User.js 
+const db = require('../config/database');//import la connexion a la bdd
+const bcrypt = require('bcryptjs');//sert a hasher les mdp
 
 class User {
     /**

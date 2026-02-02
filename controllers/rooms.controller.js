@@ -239,7 +239,7 @@ exports.getOwnerRooms = async (req, res) => {
             return res.status(403).json({ error: 'Accès réservé aux propriétaires' });
         }
 
-        console.log(`📊 Chargement salles propriétaire ID: ${user.id}`);
+        console.log(` Chargement salles propriétaire ID: ${user.id}`);
         
         const result = await db.query(
             `SELECT r.*, 
@@ -252,11 +252,11 @@ exports.getOwnerRooms = async (req, res) => {
             [user.id]
         );
         
-        console.log(`✅ ${result.rows.length} salles trouvées pour propriétaire ${user.id}`);
+        console.log(` ${result.rows.length} salles trouvées pour propriétaire ${user.id}`);
         
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ Erreur getOwnerRooms:', err);
+        console.error(' Erreur getOwnerRooms:', err);
         res.status(500).json({ error: 'Erreur récupération salles propriétaire' });
     }
 };

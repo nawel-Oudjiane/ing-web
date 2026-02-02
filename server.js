@@ -6,12 +6,15 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+
 // Middleware
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
+
+
 
 // Debug log
 app.use((req, res, next) => {
@@ -38,6 +41,7 @@ app.use((err, req, res, next) => {
   console.error('ERREUR SERVEUR:', err.message);
   res.status(500).json({ error: 'Erreur interne du serveur' });
 });
+
 
 app.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
 
