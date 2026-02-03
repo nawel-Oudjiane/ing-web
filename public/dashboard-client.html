@@ -66,30 +66,29 @@
 </section>
 
         <!-- Salles disponibles -->
-        <section id="salles">
+    <section id="salles">
             <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
             <div id="rooms-list" class="rooms-grid">
                 <div class="loading">Chargement des salles...</div>
             </div>
-        </section>
+    </section>
 
         <!--MAPPPP-->
 
-        <section id="map-section">
-    <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
-    <div id="client-map" style="height: 500px; border-radius: 12px; border: 2px solid #e0e0e0; margin-top: 1rem;"></div>
-</section>
+    <section id="map-section">
+            <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
+            <div id="client-map" style="height: 500px; border-radius: 12px; border: 2px solid #e0e0e0; margin-top: 1rem;"></div>
+    </section>
 
         <!-- Mes réservations -->
-        <section id="client-section">
+    <section id="client-section">
             <h2><i class="fas fa-calendar-check"></i> Mes Réservations</h2>
             <div id="my-bookings">
                 Chargement de vos réservations...
             </div>
-        </section>
 
-        <!-- MODAL RÉSERVATION -->
-        <div id="booking-modal" class="modal">
+             <!-- MODAL RÉSERVATION -->
+     <div id="booking-modal" class="modal">
             <div class="modal-content">
                 <h3>Réserver la salle</h3>
                 <label>Début :</label>
@@ -102,9 +101,55 @@
                     <button onclick="confirmBooking()"><i class="fas fa-check"></i> Confirmer</button>
                     <button onclick="closeBookingModal()"><i class="fas fa-times"></i> Annuler</button>
                 </div>
+             </div>
+         </div>
+     </div>
+    </section>
+
+    <!-- AVISss -->
+<section id="client-reviews-section" class="section-card">
+    <h2><i class="fas fa-star"></i> Mes Avis</h2>
+    <div id="my-reviews">
+        Chargement de vos avis...
+    </div>
+    
+    <!-- Formulaire pour laisser un avis -->
+    <div id="add-review-form" style="display: none; margin-top: 2rem;">
+        <h3><i class="fas fa-comment-medical"></i> Laisser un avis</h3>
+        <div class="form-group">
+            <label>Réservation:</label>
+            <select id="review-booking" class="form-control">
+                <option value="">Sélectionner une réservation</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Note (1-5 étoiles):</label>
+            <div class="rating-stars" style="font-size: 24px; color: #ffc107;">
+                <span onclick="setRating(1)">☆</span>
+                <span onclick="setRating(2)">☆</span>
+                <span onclick="setRating(3)">☆</span>
+                <span onclick="setRating(4)">☆</span>
+                <span onclick="setRating(5)">☆</span>
             </div>
+            <input type="hidden" id="review-rating" value="0">
+        </div>
+        <div class="form-group">
+            <label>Commentaire:</label>
+            <textarea id="review-comment" class="form-control" rows="3" placeholder="Partagez votre expérience..."></textarea>
+        </div>
+        <div class="form-actions">
+            <button class="btn btn-primary" onclick="submitReview()">
+                <i class="fas fa-paper-plane"></i> Envoyer l'avis
+            </button>
+            <button class="btn btn-secondary" onclick="cancelReview()">
+                <i class="fas fa-times"></i> Annuler
+            </button>
         </div>
     </div>
+</section>
+
+       
+
 
     <footer>
         <p> Plateforme de Réservation de Salles</p>
@@ -131,6 +176,9 @@
         console.log("Utilisateur client:", currentUser.full_name);
         loadRooms('rooms-list');
         loadClientBookings();
+        loadClientReviews();
+        populateCityFilter();
+
     }
 });
 

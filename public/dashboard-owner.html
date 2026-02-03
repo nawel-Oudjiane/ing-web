@@ -147,7 +147,7 @@
                 <input type="text" id="edit-room-city" placeholder="Ville *" required>
             </div>
             <div class="form-actions">
-                <button class="btn btn-primary" onclick="updateRoom()">
+                <button class="btn btn-primary" onclick="updateRoom()"onclick="editRoom()" ondblclick="editRoomWithMap()">
                     <i class="fas fa-save"></i> Enregistrer
                 </button>
                 <button class="btn btn-secondary" onclick="cancelEdit()">
@@ -157,12 +157,52 @@
         </section>
 
         <!-- AVIS -->
-        <section class="section-card">
-            <h2><i class="fas fa-star"></i> Avis reçus</h2>
-            <div id="owner-reviews" class="reviews-container">
-                Chargement des avis...
-            </div>
-        </section>
+        <!--  remplacez la section avis -->
+<section class="section-card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2><i class="fas fa-star"></i> Avis reçus</h2>
+        <button class="btn btn-small btn-primary" onclick="loadOwnerReviews()">
+            <i class="fas fa-sync-alt"></i> Actualiser
+        </button>
+    </div>
+    
+    <!-- Filtres -->
+    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+        <select id="review-filter" class="form-control" onchange="loadOwnerReviews()" style="width: auto;">
+            <option value="all">Tous les avis</option>
+            <option value="approved">Approuvés</option>
+            <option value="pending">En attente</option>
+        </select>
+        <select id="room-filter" class="form-control" onchange="loadOwnerReviews()" style="width: auto;">
+            <option value="all">Toutes les salles</option>
+        </select>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-bottom: 1.5rem;">
+        <div class="stat-card small">
+            <i class="fas fa-star-half-alt"></i>
+            <h3 id="avg-rating">0.0</h3>
+            <p>Note moyenne</p>
+        </div>
+        <div class="stat-card small">
+            <i class="fas fa-comments"></i>
+            <h3 id="total-reviews">0</h3>
+            <p>Avis totaux</p>
+        </div>
+        <div class="stat-card small">
+            <i class="fas fa-clock"></i>
+            <h3 id="pending-reviews">0</h3>
+            <p>En attente</p>
+        </div>
+    </div>
+    
+    <!-- Liste des avis -->
+    <div id="owner-reviews" class="reviews-container">
+        Chargement des avis...
+    </div>
+</section>
+
     </div>
 
     <footer>
@@ -263,6 +303,7 @@
                 // Charger salles et stats
                 loadOwnerRooms('owner-rooms-list');
                 loadOwnerStats();
+                loadOwnerReviews();
 
                 // Initialiser carte
                 if (window.initOwnerMap) initOwnerMap();

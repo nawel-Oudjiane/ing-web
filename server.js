@@ -22,12 +22,43 @@ app.use((req, res, next) => {
   next();
 });
 
+// Dans server.js, avant les autres routes
+app.get('/api/test/setup', async (req, res) => {
+    try {
+        const db = require('./config/database');
+        
+        // Ajouter un avis de test si nécessaire
+        const testReview = await db.query(
+            `INSERT INTO reviews (booking_id, client_id, room_id, rating, comment) 
+             SELECT b.id, b.client_id, b.room_id, 5, 'Test review'
+             FROM bookings b 
+             WHERE b.client_id = (SELECT id FROM users WHERE role = 'client' LIMIT 1)
+             LIMIT 1
+             ON CONFLICT (booking_id, client_id) DO NOTHING
+             RETURNING *`
+        );
+        
+        res.json({
+            success: true,
+            message: 'Test setup completed',
+            review: testReview.rows[0] || 'Already exists'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+
+
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/rooms', require('./routes/rooms.routes'));// pour importer les routes rooms
 app.use('/api/users', require('./routes/users.routes')); //pour importer les routes users
 app.use('/api/bookings', require('./routes/bookings.routes')); // pour importer les routes bookings
 app.use('/api/stats', require('./routes/stats.routes'));
+
+const reviewsRoutes = require('./routes/reviews.routes');
+app.use('/api/reviews', reviewsRoutes);
 
 // Routes test
 app.get('/api', (req, res) => res.json({ message: 'API OK' }));

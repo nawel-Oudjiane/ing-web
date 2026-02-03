@@ -1,4 +1,5 @@
 // controllers/bookings.controller.js
+// ce controlleur fonctionne avec db.query pour interagir avec la base de données PostgreSQL sans cree de modeol pour la reservation.
 
 const db = require('../config/database');
 

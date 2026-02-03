@@ -40,12 +40,9 @@ function checkAuthStatus() {
     }
 }
 
-// ================================
-// CONFIGURATION DASHBOARD SELON RÔLE
-// ================================
 
 // ================================
-// CONFIGURATION DASHBOARD SELON RÔLE
+// CONFIGURATION DASHBOARD SELON RÔLE (message de bienvenu)
 // ================================
 function setupDashboard() {
     if (!currentUser) return;
@@ -55,28 +52,31 @@ function setupDashboard() {
         if (welcomeDiv) {
             // NE PAS utiliser innerHTML qui supprime tout !
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = `👋🏻 Bienvenue ${currentUser.full_name}`;
         }
         loadUsers();
         loadStats();
         loadRooms('rooms-list');
+        
     } 
     else if (currentUser.role === 'owner') {
         const welcomeDiv = document.getElementById('owner-welcome');
         if (welcomeDiv) {
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = `👋🏻  Bienvenue ${currentUser.full_name}`;
         }
         loadRooms('owner-rooms-list');
+        loadOwnerReviews();
     } 
     else if (currentUser.role === 'client') {
         const welcomeDiv = document.getElementById('client-welcome');
         if (welcomeDiv) {
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋 Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = `👋🏻  Bienvenue ${currentUser.full_name}`;
         }
         loadRooms('rooms-list');
         loadClientBookings();
+         loadClientReviews();
     }
 }
 // ================================
@@ -249,11 +249,13 @@ async function loadRooms(targetListId) {
                 <p style="color: #666; margin-bottom: 10px;">
                     ${room.description ? (room.description.length > 100 ? room.description.substring(0, 100) + '...' : room.description) : 'Aucune description'}
                 </p>
-                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                    <span><i class="fas fa-users" style="color: #2196f3;"></i> ${room.capacity} pers.</span>
-                    <span><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i> ${room.price_per_hour} Da/h</span>
-                    <span><i class="fas fa-map-marker-alt" style="color: #f44336;"></i> ${room.city || '?'}</span>
-                </div>
+                <div style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px;">
+                 <span><i class="fas fa-users" style="color: #2196f3;"></i> ${room.capacity} pers.</span>
+                  <span><i class="fas fa-money-bill-wave" style="color: #4CAF50;"></i> ${room.price_per_hour} Da/h</span>
+                 <span><i class="fas fa-map-marker-alt" style="color: #f44336;"></i> Ville: ${room.city || '?'}</span>
+                  <span><i class="fas fa-location-dot" style="color: #f44336;"></i> Adresse: ${room.address_full || room.city || '?'}</span>
+                    </div>
+
                 ${actionButtons}
             `;
             list.appendChild(card);
@@ -262,7 +264,7 @@ async function loadRooms(targetListId) {
         // Mettre à jour la carte SI elle existe
         if (document.getElementById('client-map') && typeof initClientMap === 'function') {
             console.log("Mise à jour de la carte");
-            initClientMap(roomsToShow);
+            initClientMap(rooms);// au lieu de roomsToShow
         }
 
     } catch (err) {
@@ -304,7 +306,7 @@ async function addRoom() {
         alert('Salle ajoutée !');
         
         // Recharger les salles du proprio
-        loadRooms('owner-rooms-list'); // <-- C'EST TOUT !
+        loadRooms('owner-rooms-list'); 
         
     } catch (err) {
         console.error(err);
@@ -313,9 +315,6 @@ async function addRoom() {
 }
 
 
-// ================================
-// AJOUTER SALLE (POUR LE DASHBOARD OWNER HTML)
-// ================================
 // ================================
 // AJOUTER SALLE (POUR LE DASHBOARD OWNER HTML)
 // ================================
@@ -346,7 +345,7 @@ async function addOwnerRoom() {
         if (coords) {
             latitude = coords.lat;
             longitude = coords.lng;
-            console.log(`📍 Coordonnées géocodées: ${latitude}, ${longitude}`);
+            console.log(` Coordonnées géocodées: ${latitude}, ${longitude}`);
         } else {
             return alert('Veuillez définir l\'emplacement sur la carte. Cliquez sur la carte pour positionner la salle.');
         }
@@ -377,7 +376,7 @@ async function addOwnerRoom() {
             return alert(data.error || 'Erreur ajout salle');
         }
         
-        alert('✅ Salle ajoutée avec succès ! Elle apparaîtra sur la carte.');
+        alert(' Salle ajoutée avec succès !');
         
         // Recharger les salles
         loadRooms('owner-rooms-list');
@@ -426,7 +425,7 @@ async function geocodeAddress(address) {
     return null;
 }
 // ================================
-// EDITER SALLE
+// EDITER SALLE (propriétaire)
 // ================================
 function editRoom(roomId) {
     currentEditRoomId = roomId;
@@ -481,7 +480,7 @@ async function editRoomWithMap(roomId) {
         if (!res.ok) throw new Error('Erreur chargement salle');
         const room = await res.json();
         
-        console.log('📋 Chargement salle pour édition:', room);
+        console.log(' Chargement salle pour édition:', room);
         
         // Ouvrir un modal pour la localisation
         const modal = document.createElement('div');
@@ -675,7 +674,7 @@ async function saveRoomLocation(roomId) {
     saveBtn.disabled = true;
     
     try {
-        console.log(`💾 Sauvegarde localisation salle ${roomId}: ${latNum}, ${lngNum}`);
+        console.log(` Sauvegarde localisation salle ${roomId}: ${latNum}, ${lngNum}`);
         
         // ENVOYER SEULEMENT les coordonnées, pas les autres champs
         const res = await fetch(`/api/rooms/${roomId}`, {
@@ -697,9 +696,9 @@ async function saveRoomLocation(roomId) {
             throw new Error(data.error || 'Erreur lors de la sauvegarde');
         }
         
-        console.log('✅ Réponse API:', data);
+        console.log('Réponse API:', data);
         
-        alert('✅ Localisation enregistrée !');
+        alert('Localisation enregistrée !');
         closeEditMapModal();
         
         // Recharger les données après un court délai
@@ -719,7 +718,7 @@ async function saveRoomLocation(roomId) {
                     fetch('/api/rooms')
                         .then(res => res.json())
                         .then(rooms => {
-                            console.log('🔄 Rechargement carte avec', rooms.length, 'salles');
+                            console.log(' Rechargement carte avec', rooms.length, 'salles');
                             initClientMap(rooms);
                         })
                         .catch(err => console.error('Erreur rechargement:', err));
@@ -775,43 +774,78 @@ async function deleteRoom(roomId) {
 // ================================
 // METTRE À JOUR SALLE (OWNER)
 // ================================
+// ================================
+// METTRE À JOUR SALLE (OWNER) + coords
+// ================================
+// ================================
+// METTRE À JOUR SALLE (OWNER) AVEC ADRESSE COMPLETE
+// ================================
 async function updateRoom() {
     if (!currentEditRoomId) return;
 
-    const name = document.getElementById('edit-room-name').value;
-    const description = document.getElementById('edit-room-description').value;
+    const name = document.getElementById('edit-room-name').value.trim();
+    const description = document.getElementById('edit-room-description').value.trim();
     const capacity = parseInt(document.getElementById('edit-room-capacity').value);
     const price_per_hour = parseFloat(document.getElementById('edit-room-price').value);
-    const city = document.getElementById('edit-room-city').value;
+    const city = document.getElementById('edit-room-city').value.trim();
 
     if (!name || !description || isNaN(capacity) || isNaN(price_per_hour) || !city) {
         return alert("Veuillez remplir tous les champs correctement");
     }
 
     try {
+        let latitude = null;
+        let longitude = null;
+        let address_full = null;
+
+        // 🔹 Géocoder la ville pour récupérer lat/lng + adresse complète
+        const geoRes = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}&limit=1&countrycodes=dz`);
+        const geoData = await geoRes.json();
+
+        if (geoData && geoData.length > 0) {
+            latitude = parseFloat(geoData[0].lat);
+            longitude = parseFloat(geoData[0].lon);
+            address_full = geoData[0].display_name; // Adresse complète
+        } else {
+            alert('Ville introuvable, vérifiez l’orthographe');
+            return;
+        }
+
+        // 🔹 Envoyer la mise à jour à l’API
         const res = await fetch(`/api/rooms/${currentEditRoomId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${currentToken}`
             },
-            body: JSON.stringify({ name, description, capacity, price_per_hour, city })
+            body: JSON.stringify({ 
+                name, 
+                description, 
+                capacity, 
+                price_per_hour, 
+                city, 
+                latitude, 
+                longitude,
+                address_full
+            })
         });
-        
-        const data = await res.json();
-        if (data.error) return alert(data.error);
 
-        alert("✅ Salle modifiée avec succès !");
+        const data = await res.json();
+        if (!res.ok) return alert(data.error || 'Erreur lors de la modification de la salle');
+
+        alert("Salle modifiée avec succès !");
         cancelEdit();
-        
-        // Recharger les salles
+
+        // 🔹 Recharger les salles (owner) et mettre à jour la carte
         loadRooms('owner-rooms-list');
-        
+
     } catch (err) {
         console.error(err);
-        alert("❌ Erreur lors de la modification de la salle");
+        alert("Erreur lors de la modification de la salle");
     }
 }
+
+
 
 // ================================
 // MODAL RÉSERVATION 
@@ -1156,49 +1190,6 @@ async function toggleUserActive(userId, currentActive) {
 }
 
 // ================================
-// FONCTIONS POUR LES AVIS
-// ================================
-async function approveReview(reviewId) {
-    if (!currentToken || currentUser.role !== 'admin') return alert('Accès refusé');
-
-    try {
-        const res = await fetch(`/api/reviews/${reviewId}/approve`, {
-            method: 'PUT',
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        
-        if (res.ok) {
-            alert('Avis approuvé !');
-            loadReviews();
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Erreur lors de l\'approbation de l\'avis');
-    }
-}
-
-async function deleteReview(reviewId) {
-    if (!currentToken || currentUser.role !== 'admin') return alert('Accès refusé');
-
-    if (!confirm('Supprimer cet avis ?')) return;
-
-    try {
-        const res = await fetch(`/api/reviews/${reviewId}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        
-        if (res.ok) {
-            alert('Avis supprimé !');
-            loadReviews();
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Erreur lors de la suppression de l\'avis');
-    }
-}
-
-// ================================
 // FONCTIONS POUR LA GESTION DES SALLES (ADMIN)
 // ================================
 function viewRoomDetails(roomId) {
@@ -1240,35 +1231,7 @@ function viewRoomDetails(roomId) {
     });
 }
 
-// ================================
-// FONCTION POUR CHARGER LES AVIS
-// ================================
-async function loadReviews() {
-    if (!currentToken || currentUser.role !== 'admin') return;
 
-    try {
-        const res = await fetch('/api/reviews', {
-            headers: { 'Authorization': `Bearer ${currentToken}` }
-        });
-        
-        if (res.status === 404) {
-            document.getElementById('reviews-list').innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-tools"></i>
-                    <p>Fonctionnalité en cours de développement</p>
-                    <p><small>La gestion des avis sera disponible bientôt</small></p>
-                </div>
-            `;
-            return;
-        }
-        
-        const reviews = await res.json();
-        // Afficher les reviews
-    } catch (err) {
-        console.error(err);
-        document.getElementById('reviews-list').innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des avis</p></div>';
-    }
-}
 
 // ================================
 // FONCTION POUR ANNULER UNE RÉSERVATION (CLIENT)
@@ -1303,7 +1266,7 @@ async function cancelBooking(bookingId) {
 
 
 // ================================
-// GESTION DU MODE SOMBRE/CLAIR - VERSION SIMPLIFIÉE
+// GESTION DU MODE SOMBRE/CLAIR 
 // ================================
 
 // Initialiser le thème
@@ -1396,16 +1359,16 @@ function updateThemeButton() {
 }
 
 // ================================
-// INITIALISATION GARANTIE
+// INITIALISATION DU THÈME AU CHARGEMENT DE LA PAGE
 // ================================
 
-// Méthode 1 : Attendre que tout soit chargé
+//  Attendre que tout soit chargé
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM chargé - Initialisation du thème");
     initThemeSystem();
 });
 
-// Méthode 2 : Backup - aussi au chargement de la fenêtre
+//  Backup  aussi au chargement de la fenêtre
 window.addEventListener('load', function() {
     console.log("Page complètement chargée");
     // Réessayer si pas déjà fait
@@ -1414,7 +1377,7 @@ window.addEventListener('load', function() {
     }
 });
 
-// Méthode 3 : Initialiser immédiatement si DOM déjà prêt
+//  Initialiser immédiatement si DOM déjà prêt
 if (document.readyState === 'loading') {
     console.log("DOM en cours de chargement...");
 } else {
@@ -1605,7 +1568,7 @@ document.addEventListener('DOMContentLoaded', initForm);
 // ================================
 async function loadRoomsWithMap(containerId = 'rooms-list') {
     try {
-        console.log("🔄 Chargement des salles avec carte...");
+        console.log(" Chargement des salles avec carte...");
         
         const res = await fetch('/api/rooms', {
             headers: currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {}
@@ -1614,7 +1577,7 @@ async function loadRoomsWithMap(containerId = 'rooms-list') {
         if (!res.ok) throw new Error('Erreur récupération salles');
         const rooms = await res.json();
         
-        console.log(`✅ ${rooms.length} salles chargées`);
+        console.log(` ${rooms.length} salles chargées`);
         
         // 1. Afficher dans la liste
         const list = document.getElementById(containerId);
@@ -1633,7 +1596,7 @@ async function loadRoomsWithMap(containerId = 'rooms-list') {
                         <p><i class="fas fa-users"></i> Capacité: ${room.capacity}</p>
                         <p class="price"><i class="fas fa-money-bill-wave"></i> ${room.price_per_hour} Da / heure</p>
                         <p><i class="fas fa-map-marker-alt"></i> ${room.city || 'Ville non précisée'}</p>
-                        ${room.address ? `<p><i class="fas fa-location-dot"></i> ${room.address}</p>` : ''}
+                        ${room.address_full ? `<p><i class="fas fa-location-dot"></i> ${room.address_full}</p>` : ''}
                         <div class="room-actions">
                             <button class="btn btn-small btn-primary" onclick="viewRoomDetails(${room.id})">
                                 <i class="fas fa-eye"></i> Détails
@@ -1657,7 +1620,7 @@ async function loadRoomsWithMap(containerId = 'rooms-list') {
         }
         
     } catch (err) {
-        console.error('❌ Erreur chargement salles:', err);
+        console.error(' Erreur chargement salles:', err);
         const list = document.getElementById(containerId);
         if (list) {
             list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des salles</p></div>';
@@ -1671,9 +1634,9 @@ window.loadRooms = loadRoomsWithMap;
 
 
 // ================================
-// FONCTION SPÉCIFIQUE PROPRIÉTAIRE - Charger uniquement ses salles
+// FONCTION SPÉCIFIQUE PROPRIÉTAIRE , Charger uniquement ses salles <---------------------------------------
 // ================================
-async function loadOwnerRooms() {
+async function loadOwnerRooms() { 
     if (!currentToken || currentUser?.role !== 'owner') return;
     
     const list = document.getElementById('owner-rooms-list');
@@ -1725,7 +1688,7 @@ async function loadOwnerRooms() {
                 <p><strong>Capacité:</strong> ${room.capacity} personnes</p>
                 <p><strong>Prix:</strong> ${room.price_per_hour} Da / heure</p>
                 <p><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</p>
-                ${room.address ? `<p><strong>Adresse:</strong> ${room.address}</p>` : ''}
+                ${room.address_full ? `<p><strong>Adresse:</strong> ${room.address_full}</p>` : ''}
                 <div class="room-actions">
                     <button onclick="editRoom(${room.id})" class="btn btn-warning">
                         <i class="fas fa-edit"></i> Modifier
@@ -1781,7 +1744,7 @@ async function deleteRoom(roomId) {
 
 
 /* =====================================================
-   OWNER – Charger uniquement les salles du propriétaire connecté
+   OWNER – Charger uniquement les salles du propriétaire connecté <-----------------------------------
    ===================================================== */
 async function loadOwnerRooms(containerId = 'rooms-list') {
     if (!currentUser || currentUser.role !== 'owner') {
@@ -1855,13 +1818,13 @@ function initializeMapForPage(rooms) {
     
     const mapElement = document.getElementById('client-map');
     if (!mapElement) {
-        console.log("⚠️ Aucune carte à initialiser sur cette page");
+        console.log("Aucune carte à initialiser sur cette page");
         return;
     }
     
     // Vérifier si Leaflet est chargé
     if (typeof L === 'undefined') {
-        console.error("❌ Leaflet non chargé !");
+        console.error(" Leaflet non chargé !");
         mapElement.innerHTML = `
             <div class="map-error">
                 <i class="fas fa-map-marked-alt"></i>
@@ -1921,10 +1884,10 @@ function initializeMapForPage(rooms) {
             map.setView([roomsWithCoords[0].latitude, roomsWithCoords[0].longitude], 12);
         }
         
-        console.log("✅ Carte initialisée avec succès !");
+        console.log("Carte initialisée avec succès !");
         
     } catch (error) {
-        console.error("❌ Erreur création carte:", error);
+        console.error(" Erreur création carte:", error);
         mapElement.innerHTML = `
             <div class="map-error">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -1935,3 +1898,580 @@ function initializeMapForPage(rooms) {
     }
 }
 
+// ================================
+// FONCTIONS POUR LES AVIS (CLIENT)
+// ================================
+
+// Charger les avis du client
+async function loadClientReviews() {
+    if (!currentToken || currentUser?.role !== 'client') {
+        console.log('❌ Non connecté ou non client');
+        return;
+    }
+    
+    const container = document.getElementById('my-reviews');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading">Chargement de vos avis...</div>';
+    
+    try {
+        console.log('🔍 Chargement des avis du client...');
+        
+        const res = await fetch('/api/reviews/my', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        console.log('📡 Status:', res.status);
+        
+        if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || 'Erreur API');
+        }
+        
+        const reviews = await res.json();
+        console.log('✅ Avis reçus:', reviews);
+        
+        if (!reviews.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>Vous n'avez pas encore laissé d'avis</p>
+                    <button class="btn btn-primary" onclick="showReviewForm()" style="margin-top: 1rem;">
+                        <i class="fas fa-star"></i> Laisser votre premier avis
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        reviews.forEach(review => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            
+            // Rating stars
+            const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            
+            card.innerHTML = `
+                <div class="review-header">
+                    <div>
+                        <strong>${review.room_name || 'Salle'}</strong>
+                        <span class="badge status-active" style="margin-left: 10px;">Approuvé</span>
+                    </div>
+                    <div class="review-rating" style="color: #ffc107; font-size: 1.2rem;">
+                        ${stars}
+                    </div>
+                </div>
+                <div class="review-content">
+                    ${review.comment || '<i style="color: #666;">Aucun commentaire</i>'}
+                </div>
+                <div class="review-footer">
+                    <small>Posté le ${new Date(review.created_at).toLocaleDateString()}</small>
+                    <button class="btn btn-small btn-danger" onclick="deleteMyReview(${review.id})">
+                        <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+        
+    } catch (err) {
+        console.error('❌ Erreur chargement avis:', err);
+        container.innerHTML = `
+            <div class="error-state">
+                <i class="fas fa-exclamation-triangle"></i>
+                <p>Erreur: ${err.message}</p>
+                <button class="btn btn-secondary" onclick="loadClientReviews()" style="margin-top: 1rem;">
+                    <i class="fas fa-redo"></i> Réessayer
+                </button>
+            </div>
+        `;
+    }
+}
+
+
+// Afficher le formulaire d'avis
+async function showReviewForm() {
+    const form = document.getElementById('add-review-form');
+    const bookingSelect = document.getElementById('review-booking');
+    
+    if (!form || !bookingSelect) return;
+    
+    try {
+        // Charger les réservations du client
+        const res = await fetch('/api/bookings/my', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!res.ok) throw new Error('Erreur réservations');
+        const bookings = await res.json();
+        
+        console.log('📅 Réservations:', bookings);
+        
+        // Charger les avis existants du client
+        const reviewsRes = await fetch('/api/reviews/my', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        const myReviews = reviewsRes.ok ? await reviewsRes.json() : [];
+        console.log('⭐ Avis existants:', myReviews);
+        
+        // Filtrer les réservations :
+        // 1. Status 'confirmed'
+        // 2. Pas déjà notées
+        const eligibleBookings = bookings.filter(booking => {
+            // Vérifier le statut
+            const isConfirmed = booking.status === 'confirmed';
+            
+            // Vérifier si déjà notée
+            const alreadyReviewed = myReviews.some(review => 
+                review.booking_id === booking.id
+            );
+            
+            // Date de fin dans le passé (optionnel)
+            const isPast = new Date(booking.end_time) < new Date();
+            
+            return isConfirmed && !alreadyReviewed; // Vous pouvez retirer isPast pour tester
+        });
+        
+        console.log('✅ Réservations éligibles:', eligibleBookings);
+        
+        bookingSelect.innerHTML = '<option value="">Sélectionner une réservation</option>';
+        
+        if (eligibleBookings.length === 0) {
+            bookingSelect.innerHTML += '<option value="" disabled>Aucune réservation disponible</option>';
+            
+            // Message plus explicite
+            if (bookings.length === 0) {
+                alert('Vous n\'avez aucune réservation. Réservez une salle d\'abord !');
+            } else if (bookings.every(b => b.status !== 'confirmed')) {
+                alert('Vous n\'avez pas de réservation confirmée.');
+            } else {
+                alert('Vous avez déjà noté toutes vos réservations.');
+            }
+            return;
+        }
+        
+        // Ajouter les options
+        eligibleBookings.forEach(booking => {
+            const option = document.createElement('option');
+            option.value = booking.id;
+            const date = new Date(booking.start_time).toLocaleDateString();
+            option.textContent = `${booking.room_name} - ${date}`;
+            bookingSelect.appendChild(option);
+        });
+        
+        form.style.display = 'block';
+        form.scrollIntoView({ behavior: 'smooth' });
+        
+    } catch (err) {
+        console.error('Erreur:', err);
+        alert('Erreur lors du chargement des réservations: ' + err.message);
+    }
+}
+
+
+// Définir la note
+function setRating(rating) {
+    document.getElementById('review-rating').value = rating;
+    const stars = document.querySelectorAll('.rating-stars span');
+    stars.forEach((star, index) => {
+        star.textContent = index < rating ? '★' : '☆';
+        star.style.color = index < rating ? '#ffc107' : '#ddd';
+    });
+}
+
+// Soumettre un avis
+async function submitReview() {
+    const bookingId = document.getElementById('review-booking').value;
+    const rating = document.getElementById('review-rating').value;
+    const comment = document.getElementById('review-comment').value;
+    
+    if (!bookingId || !rating || rating < 1 || rating > 5) {
+        alert('Veuillez sélectionner une réservation et donner une note (1-5 étoiles)');
+        return;
+    }
+    
+    try {
+        const res = await fetch('/api/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${currentToken}`
+            },
+            body: JSON.stringify({
+                booking_id: parseInt(bookingId),
+                rating: parseInt(rating),
+                comment: comment || null
+            })
+        });
+        
+        const data = await res.json();
+        
+        if (!res.ok) {
+            throw new Error(data.error || 'Erreur lors de l\'envoi');
+        }
+        
+        alert('✅ Avis soumis avec succès ! Il sera visible après modération.');
+        cancelReview();
+        loadClientReviews();
+        
+    } catch (err) {
+        console.error('Erreur soumission avis:', err);
+        alert('Erreur: ' + err.message);
+    }
+}
+
+// Annuler l'avis
+function cancelReview() {
+    const form = document.getElementById('add-review-form');
+    if (form) {
+        form.style.display = 'none';
+        document.getElementById('review-booking').value = '';
+        document.getElementById('review-rating').value = '0';
+        document.getElementById('review-comment').value = '';
+        
+        // Réinitialiser les étoiles
+        const stars = document.querySelectorAll('.rating-stars span');
+        stars.forEach(star => {
+            star.textContent = '☆';
+            star.style.color = '#ddd';
+        });
+    }
+}
+
+// Supprimer son propre avis
+async function deleteMyReview(reviewId) {
+    if (!confirm('Supprimer cet avis ?')) return;
+    
+    try {
+        const res = await fetch(`/api/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (res.ok) {
+            alert('Avis supprimé');
+            loadClientReviews();
+        }
+    } catch (err) {
+        console.error('Erreur suppression avis:', err);
+        alert('Erreur lors de la suppression');
+    }
+}
+
+// ================================
+// FONCTIONS POUR LES AVIS (PROPRIÉTAIRE)
+// ================================
+
+// Charger les avis pour le propriétaire
+async function loadOwnerReviews() {
+    if (!currentToken || currentUser?.role !== 'owner') return;
+    
+    const container = document.getElementById('owner-reviews');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="loading">Chargement des avis...</div>';
+    
+    try {
+        // Charger les salles du propriétaire d'abord
+        const roomsRes = await fetch('/api/rooms', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!roomsRes.ok) throw new Error('Erreur salles');
+        const rooms = await roomsRes.json();
+        
+        // Filtrer pour n'avoir que les salles du propriétaire
+        const ownerRooms = rooms.filter(r => r.owner_id == currentUser.id);
+        
+        if (ownerRooms.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-door-closed"></i>
+                    <p>Vous n'avez pas encore de salles avec des avis</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Charger les avis pour chaque salle
+        const allReviews = [];
+        let totalRating = 0;
+        let reviewCount = 0;
+        let pendingCount = 0;
+        
+        for (const room of ownerRooms) {
+            try {
+                const reviewsRes = await fetch(`/api/reviews/room/${room.id}`);
+                if (reviewsRes.ok) {
+                    const data = await reviewsRes.json();
+                    const reviews = data.reviews || [];
+                    
+                    reviews.forEach(review => {
+                        review.room_name = room.name;
+                        allReviews.push(review);
+                        
+                        if (review.status === 'approved') {
+                            totalRating += review.rating;
+                            reviewCount++;
+                        } else if (review.status === 'pending') {
+                            pendingCount++;
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error(`Erreur avis salle ${room.id}:`, err);
+            }
+        }
+        
+        // Mettre à jour les stats
+        document.getElementById('total-reviews').textContent = allReviews.length;
+        document.getElementById('pending-reviews').textContent = pendingCount;
+        
+        const avgRating = reviewCount > 0 ? (totalRating / reviewCount).toFixed(1) : '0.0';
+        document.getElementById('avg-rating').textContent = avgRating;
+        
+        // Filtrer selon les sélecteurs
+        const filterStatus = document.getElementById('review-filter')?.value || 'all';
+        const filterRoom = document.getElementById('room-filter')?.value || 'all';
+        
+        let filteredReviews = allReviews;
+        
+        if (filterStatus !== 'all') {
+            filteredReviews = filteredReviews.filter(r => r.status === filterStatus);
+        }
+        
+        if (filterRoom !== 'all') {
+            filteredReviews = filteredReviews.filter(r => r.room_name === filterRoom);
+        }
+        
+        // Afficher les avis
+        if (filteredReviews.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>Aucun avis trouvé</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = '';
+        filteredReviews.forEach(review => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            
+            // Status badge
+            let statusBadge = '';
+            let statusClass = '';
+            if (review.status === 'approved') {
+                statusBadge = 'Approuvé';
+                statusClass = 'status-active';
+            } else if (review.status === 'pending') {
+                statusBadge = 'En attente';
+                statusClass = 'status-warning';
+            } else {
+                statusBadge = 'Rejeté';
+                statusClass = 'status-inactive';
+            }
+            
+            // Rating stars
+            const stars = '★'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
+            
+            card.innerHTML = `
+                <div class="review-header">
+                    <div>
+                        <strong>${review.room_name}</strong>
+                        <span class="badge ${statusClass}" style="margin-left: 10px;">${statusBadge}</span>
+                    </div>
+                    <div class="review-rating" style="color: #ffc107; font-size: 1.2rem;">
+                        ${stars}
+                    </div>
+                </div>
+                <div class="review-content">
+                    <p><i class="fas fa-user"></i> ${review.user_name || 'Client'}</p>
+                    <p>${review.comment || '<i style="color: #666;">Aucun commentaire</i>'}</p>
+                </div>
+                <div class="review-footer">
+                    <small>Posté le ${new Date(review.created_at).toLocaleDateString()}</small>
+                </div>
+            `;
+            
+            container.appendChild(card);
+        });
+        
+        // Mettre à jour le filtre des salles
+        const roomFilter = document.getElementById('room-filter');
+        if (roomFilter && roomFilter.options.length <= 2) {
+            roomFilter.innerHTML = '<option value="all">Toutes les salles</option>';
+            const uniqueRooms = [...new Set(ownerRooms.map(r => r.name))];
+            uniqueRooms.forEach(roomName => {
+                const option = document.createElement('option');
+                option.value = roomName;
+                option.textContent = roomName;
+                roomFilter.appendChild(option);
+            });
+        }
+        
+    } catch (err) {
+        console.error('Erreur chargement avis propriétaire:', err);
+        container.innerHTML = '<p class="error">Erreur lors du chargement des avis</p>';
+    }
+}
+
+// ================================
+// FONCTIONS POUR LES AVIS (ADMIN)
+// ================================
+
+// Charger les avis pour modération (admin)
+async function loadReviews() {
+    if (!currentToken || currentUser?.role !== 'admin') return;
+    
+    const list = document.getElementById('reviews-list');
+    if (!list) return;
+    
+    list.innerHTML = '<div class="loading">Chargement des avis...</div>';
+    
+    try {
+        const res = await fetch('/api/reviews', {
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (!res.ok) throw new Error('Erreur récupération avis');
+        const reviews = await res.json();
+        
+        displayReviews(reviews);
+        
+    } catch (err) {
+        console.error('Erreur chargement avis admin:', err);
+        list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des avis</p></div>';
+    }
+}
+
+// Afficher les avis pour modération
+function displayReviews(reviews) {
+    const list = document.getElementById('reviews-list');
+    const noReviewsDiv = document.getElementById('no-reviews');
+    
+    if (!reviews || reviews.length === 0) {
+        list.innerHTML = '';
+        noReviewsDiv.style.display = 'block';
+        return;
+    }
+    
+    noReviewsDiv.style.display = 'none';
+    
+    list.innerHTML = reviews.map(review => {
+        // Status badge
+        let statusBadge = '';
+        if (review.status === 'approved') {
+            statusBadge = '<span class="badge status-active">Approuvé</span>';
+        } else if (review.status === 'pending') {
+            statusBadge = '<span class="badge status-warning">En attente</span>';
+        } else {
+            statusBadge = '<span class="badge status-inactive">Rejeté</span>';
+        }
+        
+        // Rating stars
+        const stars = '★'.repeat(review.rating || 0) + '☆'.repeat(5 - (review.rating || 0));
+        
+        return `
+            <div class="review-card">
+                <div class="review-header">
+                    <div>
+                        <strong>${review.user_name || 'Utilisateur'}</strong>
+                        <br>
+                        <small>${review.room_name || 'Salle'}</small>
+                        ${statusBadge}
+                    </div>
+                    <div class="review-rating" style="color: #ffc107;">
+                        ${stars}
+                    </div>
+                </div>
+                <div class="review-content">
+                    ${review.comment || '<i style="color: #666;">Aucun commentaire</i>'}
+                </div>
+                <div class="review-footer">
+                    <span class="review-date">${new Date(review.created_at).toLocaleDateString()}</span>
+                    <div class="btn-group">
+                        ${review.status === 'pending' ? `
+                            <button class="btn btn-small btn-success" onclick="approveReview(${review.id})">
+                                <i class="fas fa-check"></i> Approuver
+                            </button>
+                            <button class="btn btn-small btn-danger" onclick="rejectReview(${review.id})">
+                                <i class="fas fa-times"></i> Rejeter
+                            </button>
+                        ` : ''}
+                        <button class="btn btn-small btn-danger" onclick="deleteReview(${review.id})">
+                            <i class="fas fa-trash"></i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Approuver un avis (admin)
+async function approveReview(reviewId) {
+    if (!currentToken || currentUser?.role !== 'admin') return;
+    
+    try {
+        const res = await fetch(`/api/reviews/${reviewId}/approve`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (res.ok) {
+            alert('✅ Avis approuvé !');
+            loadReviews();
+        }
+    } catch (err) {
+        console.error('Erreur approbation avis:', err);
+        alert(' Erreur lors de l\'approbation');
+    }
+}
+
+// Rejeter un avis (admin)
+async function rejectReview(reviewId) {
+    if (!currentToken || currentUser?.role !== 'admin') return;
+    
+    try {
+        const res = await fetch(`/api/reviews/${reviewId}/reject`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (res.ok) {
+            alert(' Avis rejeté !');
+            loadReviews();
+        }
+    } catch (err) {
+        console.error('Erreur rejet avis:', err);
+        alert('Erreur lors du rejet');
+    }
+}
+
+// Supprimer un avis (admin)
+async function deleteReview(reviewId) {
+    if (!currentToken || currentUser?.role !== 'admin') return;
+    
+    if (!confirm('Supprimer définitivement cet avis ?')) return;
+    
+    try {
+        const res = await fetch(`/api/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        
+        if (res.ok) {
+            alert('✅ Avis supprimé !');
+            loadReviews();
+        }
+    } catch (err) {
+        console.error('Erreur suppression avis:', err);
+        alert('❌ Erreur lors de la suppression');
+    }
+}

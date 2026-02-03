@@ -152,10 +152,11 @@ function displayRoomDetails(room) {
                 <i class="fas fa-map-marker-alt"></i> Localisation
             </div>
             <div style="color: #666;">
-                <div><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</div>
-                ${room.address ? `<div><strong>Adresse:</strong> ${room.address}</div>` : ''}
-                ${room.equipment ? `<div><strong>Équipements:</strong> ${room.equipment}</div>` : ''}
+                 <div><strong>Ville:</strong> ${room.city || 'Non spécifiée'}</div>
+                  ${room.address_full ? `<div><strong>Adresse:</strong> ${room.address_full}</div>` : ''}
+                  ${room.equipment ? `<div><strong>Équipements:</strong> ${room.equipment}</div>` : ''}
             </div>
+
         </div>
         
         <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; text-align: center;">
