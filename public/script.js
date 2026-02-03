@@ -63,7 +63,7 @@ function setupDashboard() {
         const welcomeDiv = document.getElementById('owner-welcome');
         if (welcomeDiv) {
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋🏻  Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = ` 👋🏻  Bienvenue ${currentUser.full_name}`;
         }
         loadRooms('owner-rooms-list');
         loadOwnerReviews();
