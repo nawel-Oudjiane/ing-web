@@ -1,3 +1,4 @@
+<!--public/dashboard-admin.html-->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -165,47 +166,14 @@
                         <h3 id="bookings-count">0</h3>
                         <p>Réservations</p>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-star"></i>
-                        <h3 id="reviews-count">0</h3>
-                        <p>Avis</p>
-                    </div>
+                   
+
+
                 </div>
             </section>
         </div>
-    </div>
-
-    <!-- Modals -->
-    <div id="userModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="modalTitle">Détails de l'Utilisateur</h3>
-                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
-            </div>
-            <div id="modalContent">
-                <!-- Contenu dynamique -->
-            </div>
-        </div>
-    </div>
-
-    <div id="deleteConfirmModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-exclamation-triangle"></i> Confirmation</h3>
-                <button class="close-btn" onclick="closeModal('deleteConfirmModal')">&times;</button>
-            </div>
-            <div>
-                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
-                <div class="form-actions">
-                    <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Annuler</button>
-                    <button class="btn btn-danger" onclick="confirmDeleteAction()">Confirmer</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- FORMULAIRE D'AJOUT D'UTILISATEUR -->
- <section>   
+ <!--ICIiii-->
+         <section>   
     
     <div class="add-user-form">
         <h3><i class="fas fa-user-plus"></i> Ajouter un nouvel utilisateur</h3>
@@ -243,6 +211,41 @@
         </form>
     </div>
 </section>
+
+
+    </div>
+
+    <!-- Modals -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Détails de l'Utilisateur</h3>
+                <button class="close-btn" onclick="closeModal('userModal')">&times;</button>
+            </div>
+            <div id="modalContent">
+                <!-- Contenu dynamique -->
+            </div>
+        </div>
+    </div>
+
+    <div id="deleteConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-exclamation-triangle"></i> Confirmation</h3>
+                <button class="close-btn" onclick="closeModal('deleteConfirmModal')">&times;</button>
+            </div>
+            <div>
+                <p id="confirmMessage">Êtes-vous sûr de vouloir effectuer cette action ?</p>
+                <div class="form-actions">
+                    <button class="btn btn-secondary" onclick="closeModal('deleteConfirmModal')">Annuler</button>
+                    <button class="btn btn-danger" onclick="confirmDeleteAction()">Confirmer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORMULAIRE D'AJOUT D'UTILISATEUR----------- -->
+ 
 
     <footer>
         <p>© 2024 ReserveURroom - Plateforme de Réservation de Salles - Interface Administrateur</p>
@@ -414,7 +417,7 @@
 
             document.getElementById('no-users').style.display = visibleCount === 0 ? 'block' : 'none';
         }
-
+          //hereeeeeee view
         function viewUserDetails(userId) {
             fetch(`/api/users/${userId}`, {
                 headers: { 'Authorization': `Bearer ${currentToken}` }
@@ -449,7 +452,7 @@
                 alert('Erreur lors du chargement des détails utilisateur');
             });
         }
-
+             //-------------------------------------mofid toggleSTATUS
         function toggleUserStatus(userId, isActive) {
             pendingAction = 'toggleUserStatus';
             currentActionId = userId;
@@ -464,6 +467,9 @@
             
             modal.style.display = 'flex';
         }
+
+
+        //fonction pour supprimer un user--------------------------
 
         function confirmDeleteUser(userId) {
             pendingAction = 'deleteUser';
@@ -480,6 +486,7 @@
             
             modal.style.display = 'flex';
         }
+        //confirmation delete use---------------------------
 
         async function confirmDeleteAction() {
             const modal = document.getElementById('deleteConfirmModal');
@@ -526,6 +533,7 @@
                 modal.style.display = 'none';
             }
         }
+        //fonction pour charger les avis des clients-------------------------------------------
 
         async function loadReviews() {
             if (!currentToken || currentUser.role !== 'admin') return;
@@ -556,6 +564,7 @@
                 list.innerHTML = '<div class="empty-state"><p>Erreur lors du chargement des avis</p></div>';
             }
         }
+        //fonctoin pour afficher les avis commentaire des clients------------------------------
 
         function displayReviews(reviews) {
             const list = document.getElementById('reviews-list');
@@ -599,7 +608,7 @@
             currentActionId = null;
         }
 
-        // Fonctions pour les salles
+        // Fonctions pour les salles (supprimer une salle)----------------------------------------------
         async function deleteRoom(roomId) {
             if (!currentToken || !currentUser) return alert('Vous devez être connecté');
 
@@ -624,7 +633,7 @@
             }
         }
 
-        // Modifier la fonction loadRooms pour les cartes admin
+        //fonction pour charger les salles 
         async function loadRoomsAdmin() {
             try {
                 const res = await fetch('/api/rooms', {

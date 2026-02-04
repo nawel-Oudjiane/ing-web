@@ -125,7 +125,7 @@ exports.register = async (req, res) => {
     try {
         const { email, password, full_name, role = 'client' } = req.body;
         
-        console.log('📝 Données reçues:', { email, full_name, role });
+        console.log(' Données reçues:', { email, full_name, role });
         
         // 1. Vérifier les champs obligatoires
         if (!email || !password) {
@@ -160,8 +160,8 @@ exports.register = async (req, res) => {
         );
         
         const newUser = result.rows[0];
-        
-        console.log('✅ Utilisateur créé:', newUser.id);
+    
+        console.log(' Utilisateur créé:', newUser.id);
         
         // 5. Répondre avec succès
         res.status(201).json({
@@ -171,7 +171,7 @@ exports.register = async (req, res) => {
         });
         
     } catch (error) {
-        console.error('❌ Erreur register:', error);
+        console.error(' Erreur register:', error);
         
         // Message d'erreur plus simple
         res.status(500).json({ 

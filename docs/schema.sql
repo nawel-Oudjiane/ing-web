@@ -18,6 +18,7 @@ CREATE TABLE users (
     role VARCHAR(20) DEFAULT 'client' CHECK (role IN ('visitor', 'client', 'owner', 'admin')),
     full_name VARCHAR(255),
     phone VARCHAR(20),
+  active BOOLEAN NOT NULL DEFAULT TRUE,// Indique si l'utilisateur est actif
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

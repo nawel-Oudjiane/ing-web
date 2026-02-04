@@ -2475,3 +2475,74 @@ async function deleteReview(reviewId) {
         alert('❌ Erreur lors de la suppression');
     }
 }
+
+// Fonction de navigation fluide
+function initSmoothScroll() {
+    // Écouter les clics sur les liens d'ancrage
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Ajouter un bouton "Retour en haut"
+    const backToTopBtn = document.createElement('button');
+    backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    backToTopBtn.className = 'back-to-top';
+    backToTopBtn.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+        transition: all 0.3s ease;
+    `;
+    
+    backToTopBtn.addEventListener('mouseenter', () => {
+        backToTopBtn.style.transform = 'scale(1.1)';
+    });
+    
+    backToTopBtn.addEventListener('mouseleave', () => {
+        backToTopBtn.style.transform = 'scale(1)';
+    });
+    
+    backToTopBtn.addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    
+    document.body.appendChild(backToTopBtn);
+    
+    // Afficher/masquer le bouton selon le scroll
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 300) {
+            backToTopBtn.style.display = 'flex';
+        } else {
+            backToTopBtn.style.display = 'none';
+        }
+    });
+}
+
+// Appeler cette fonction quand la page est chargée
+document.addEventListener('DOMContentLoaded', initSmoothScroll);

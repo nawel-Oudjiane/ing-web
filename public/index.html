@@ -15,22 +15,22 @@
 <body>
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">
-            <i class="fas fa-building"></i>
-            <span>ReserveURroom</span>
-        </div>
-        <div class="nav-links">
-            <a href="#accueil"><i class="fas fa-home"></i> Accueil</a>
-            <a href="#salles"><i class="fas fa-door-open"></i> Salles</a>
-            <a href="#reserver"><i class="fas fa-calendar-check"></i> Réserver</a>
-            <!-- Ajoutez ce bouton pour le thème -->
-             <button id="theme-toggle" class="theme-btn" title="Changer le thème">
-                    <i class="fas fa-moon"></i>
-              </button>
-            <a href="#admin" id="admin-link" class="hidden"><i class="fas fa-crown"></i> Admin</a>
-            <a href="#compte" id="compte-link"><i class="fas fa-user"></i> Mon Compte</a>
-        </div>
-    </nav>
+    <div class="logo">
+        <i class="fas fa-building"></i>
+        <span>ReserveURroom</span>
+    </div>
+    <div class="nav-links">
+        <a href="#accueil"><i class="fas fa-home"></i> Accueil</a>
+        <a href="#salles"><i class="fas fa-door-open"></i> Salles</a>
+        <a href="#map-section"><i class="fas fa-map-marked-alt"></i> Carte</a>
+        <!-- Ajoutez ce bouton pour le thème -->
+        <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+            <i class="fas fa-moon"></i>
+        </button>
+        <a href="#admin" id="admin-link" class="hidden"><i class="fas fa-crown"></i> Admin</a>
+        <a href="javascript:void(0)" onclick="scrollToAuth()" id="compte-link"><i class="fas fa-user"></i> Mon Compte</a>
+    </div>
+</nav>
 
     <!-- CONTENU PRINCIPAL -->
     <div class="container">
@@ -104,7 +104,7 @@ console.log("🧪 Test de la carte...");
 function testMap() {
     const mapElement = document.getElementById('client-map');
     if (!mapElement) {
-        console.error("❌ #client-map non trouvé");
+        console.error(" #client-map non trouvé");
         return;
     }
     
@@ -118,28 +118,42 @@ function testMap() {
     
     // Vérifier Leaflet
     if (typeof L === 'undefined') {
-        console.error("❌ Leaflet non chargé !");
+        console.error("Leaflet non chargé !");
         return;
     }
     
-    console.log("✅ Leaflet est chargé");
+    console.log(" Leaflet est chargé");
     
     // Tester la création d'une carte
     try {
         const testMap = L.map('client-map').setView([36.7525, 3.0420], 6);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(testMap);
-        console.log("✅ Carte de test créée avec succès !");
+        console.log(" Carte de test créée avec succès !");
         
         // Supprimer la carte de test
         testMap.remove();
         
     } catch (error) {
-        console.error("❌ Erreur création carte test:", error);
+        console.error(" Erreur création carte test:", error);
     }
 }
 
 // Lancer le test
 setTimeout(testMap, 1000);
+
+// Fonction pour faire défiler jusqu'à la section d'authentification
+function scrollToAuth() {
+    const authSection = document.querySelector('.auth-section');
+    if (authSection) {
+        authSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Si pas connecté, montre la section d'authentification
+        document.getElementById('visitor-view').style.display = 'block';
+        document.getElementById('visitor-view').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+
 </script>
     
 </body>

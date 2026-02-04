@@ -25,33 +25,38 @@
 
     <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">
-            <i class="fas fa-building"></i>
-            <span>ReserveURroom</span>
-        </div>
-        <div class="nav-links">
-            <a href="dashboard-client.html"><i class="fas fa-home"></i> Accueil</a>
-            <button id="theme-toggle" class="theme-btn" title="Changer le thème">
-                    <i class="fas fa-moon"></i>
-              </button>
-            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-        </div>
-    </nav>
+    <div class="logo">
+        <i class="fas fa-building"></i>
+        <span>ReserveURroom</span>
+    </div>
+    <div class="nav-links">
+        <a href="#client-hero"><i class="fas fa-home"></i> Accueil</a>
+        <a href="#client-salles"><i class="fas fa-door-open"></i> Salles</a>
+        <a href="#client-map-section"><i class="fas fa-map-marked-alt"></i> Carte</a>
+        <a href="#client-section"><i class="fas fa-calendar-check"></i> Mes Réservations</a>
+        <a href="#client-reviews"><i class="fas fa-star"></i> Mes Avis</a>
+        <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+            <i class="fas fa-moon"></i>
+        </button>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+    </div>
+</nav>
     <!-- NAVBAR -->
 
 
     <!-- CONTENU -->
     <div class="container">
         <!-- HERO -->
-        <section class="hero">
+        <section id="client-hero" class="hero">
             <h1>Dashboard Client</h1>
             <p class="subtitle">Consultez et réservez vos salles facilement</p>
             <div id="client-welcome" class="status-card">
                 <h3><i class="fas fa-user-circle"></i> Chargement...</h3>
             </div>
         </section>
-        <!-- AJOUTEZ APRÈS LA SECTION HERO -->
-<section class="section-card">
+
+        <!-- recherche salle -->
+<section id="client-search"class="section-card">
     <h2><i class="fas fa-search"></i> Rechercher une salle</h2>
     <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
         <input type="text" id="search-room" class="form-control" placeholder="Nom de la salle..." 
@@ -66,7 +71,7 @@
 </section>
 
         <!-- Salles disponibles -->
-    <section id="salles">
+    <section id="client-salles">
             <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
             <div id="rooms-list" class="rooms-grid">
                 <div class="loading">Chargement des salles...</div>
@@ -75,7 +80,7 @@
 
         <!--MAPPPP-->
 
-    <section id="map-section">
+    <section  id="client-map-section">
             <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
             <div id="client-map" style="height: 500px; border-radius: 12px; border: 2px solid #e0e0e0; margin-top: 1rem;"></div>
     </section>
@@ -86,9 +91,9 @@
             <div id="my-bookings">
                 Chargement de vos réservations...
             </div>
-
+            
              <!-- MODAL RÉSERVATION -->
-     <div id="booking-modal" class="modal">
+      <div id="booking-modal" class="modal">
             <div class="modal-content">
                 <h3>Réserver la salle</h3>
                 <label>Début :</label>
@@ -100,14 +105,17 @@
                 <div class="modal-actions">
                     <button onclick="confirmBooking()"><i class="fas fa-check"></i> Confirmer</button>
                     <button onclick="closeBookingModal()"><i class="fas fa-times"></i> Annuler</button>
-                </div>
-             </div>
-         </div>
+                 </div>
+              </div>
+          </div>
      </div>
+            <!--    -------------------------------->
+
     </section>
 
     <!-- AVISss -->
-<section id="client-reviews-section" class="section-card">
+
+    <section class="section-card"id="client-reviews">
     <h2><i class="fas fa-star"></i> Mes Avis</h2>
     <div id="my-reviews">
         Chargement de vos avis...
