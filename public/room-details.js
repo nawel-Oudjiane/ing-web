@@ -1,5 +1,5 @@
 // ================================
-// ROOM DETAILS MODAL - FICHIER SÉPARÉ
+// ROOM DETAILS MODAL pour afficher les détails d'une salle
 // ================================
 
 let roomDetailsModal = null;
@@ -24,12 +24,12 @@ function initRoomDetails() {
     `;
     document.body.appendChild(roomDetailsModal);
     
-    console.log('✅ Modal détails initialisé');
+    console.log(' Modal détails initialisé');
 }
 
 // Fonction principale
 function viewRoomDetails(roomId) {
-    console.log(`🔍 Voir détails salle: ${roomId}`);
+    console.log(` Voir détails salle: ${roomId}`);
     
     // Initialiser le modal s'il n'existe pas
     if (!roomDetailsModal) {

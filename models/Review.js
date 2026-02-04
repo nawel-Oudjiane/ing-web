@@ -2,7 +2,7 @@
 const db = require('../config/database');
 
 const Review = {
-    // Créer un avis
+    // Créer un avis par un client
     create: async (userId, bookingId, rating, comment) => {
         const result = await db.query(
             `INSERT INTO reviews (user_id, booking_id, rating, comment, status) 
@@ -12,7 +12,7 @@ const Review = {
         return result.rows[0];
     },
     
-    // Avis d'une salle
+    // fonction pour récupérer les avis d'une chambre spécifique
     getByRoom: async (roomId) => {
         const result = await db.query(
             `SELECT r.*, u.full_name as user_name

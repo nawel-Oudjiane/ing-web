@@ -1,6 +1,8 @@
 // controllers/reviews.controller.js
 const db = require('../config/database');
 
+
+//fonction pour creer un avis apres que le client a termine sa reservation
 exports.create = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -18,7 +20,7 @@ exports.create = async (req, res) => {
         );
         
         if (booking.rows.length === 0) {
-            return res.status(403).json({ error: 'Réservation non trouvée' });
+            return res.status(403).json({ error: 'Réservation non trouvée' });// 403: L'utilisateur n'a pas le droit d'acceder a cette ressource
         }
         
         // Créer l'avis
@@ -40,7 +42,7 @@ exports.create = async (req, res) => {
     }
 };
 
-// Pour l'admin seulement
+// Pour l'admin seulement recupere tous les avis================
 exports.getAll = async (req, res) => {
     try {
         if (req.user.role !== 'admin') {

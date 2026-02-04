@@ -12,9 +12,9 @@ const pool = new Pool({
 // Test de connexion
 pool.connect((err, client, release) => {
   if (err) {
-    console.error('❌ Erreur connexion PostgreSQL:', err.message);
+    console.error(' Erreur connexion PostgreSQL:', err.message);
   } else {
-    console.log('✅ Connecté à PostgreSQL - Base----->:', process.env.DB_NAME);
+    console.log('===================== Connecté à PostgreSQL BDD ==================>:', process.env.DB_NAME);
     release();
   }
 });

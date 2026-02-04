@@ -1,5 +1,5 @@
-// public/map-utils.js
-console.log("🗺️ Chargement de map-utils.js");
+// public/map-utils.js pour les fonctions utilitaires de la carte
+console.log(" Chargement de map-utils.js");
 
 const MapUtils = {
     // Vérifier si Leaflet est chargé
@@ -10,13 +10,13 @@ const MapUtils = {
     // Initialiser une carte basique
    initMap: function(elementId, center = [36.7525, 3.0420], zoom = 6) {
     if (!this.isLeafletLoaded()) {
-        console.error("❌ Leaflet non chargé !");
+        console.error(" Leaflet non chargé !");
         return null;
     }
     
     const mapElement = document.getElementById(elementId);
     if (!mapElement) {
-        console.error(`❌ Élément #${elementId} non trouvé`);
+        console.error(` Élément #${elementId} non trouvé`);
         return null;
     }
     
@@ -28,10 +28,10 @@ const MapUtils = {
             maxZoom: 19
         }).addTo(map);
         
-        console.log(`✅ Carte #${elementId} initialisée`);
+        console.log(` Carte #${elementId} initialisée`);
         return map;
     } catch (error) {
-        console.error(`❌ Erreur création carte:`, error);
+        console.error(`Erreur création carte:`, error);
         return null;
     }
 },

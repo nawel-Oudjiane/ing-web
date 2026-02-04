@@ -52,7 +52,7 @@ function setupDashboard() {
         if (welcomeDiv) {
             // NE PAS utiliser innerHTML qui supprime tout !
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋🏻 Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = ` Bienvenue ${currentUser.full_name}`;
         }
         loadUsers();
         loadStats();
@@ -63,7 +63,7 @@ function setupDashboard() {
         const welcomeDiv = document.getElementById('owner-welcome');
         if (welcomeDiv) {
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = ` 👋🏻  Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = `  Bienvenue ${currentUser.full_name}`;
         }
         loadRooms('owner-rooms-list');
         loadOwnerReviews();
@@ -72,7 +72,7 @@ function setupDashboard() {
         const welcomeDiv = document.getElementById('client-welcome');
         if (welcomeDiv) {
             const h3 = welcomeDiv.querySelector('h3');
-            if (h3) h3.innerHTML = `👋🏻  Bienvenue ${currentUser.full_name}`;
+            if (h3) h3.innerHTML = `  Bienvenue ${currentUser.full_name}`;
         }
         loadRooms('rooms-list');
         loadClientBookings();
@@ -772,13 +772,7 @@ async function deleteRoom(roomId) {
 }
 
 // ================================
-// METTRE À JOUR SALLE (OWNER)
-// ================================
-// ================================
-// METTRE À JOUR SALLE (OWNER) + coords
-// ================================
-// ================================
-// METTRE À JOUR SALLE (OWNER) AVEC ADRESSE COMPLETE
+//  fonction pour mettre à jour une salle
 // ================================
 async function updateRoom() {
     if (!currentEditRoomId) return;
@@ -949,7 +943,7 @@ async function loadClientBookings() {
             const div = document.createElement('div');
             div.className = 'room-card';
             
-            // AJOUTEZ LE BOUTON ANNULER ICI :
+            
             div.innerHTML = `
                 <h4>${b.room_name}</h4>
                 <p><strong>Début :</strong> ${new Date(b.start_time).toLocaleString()}</p>
@@ -1078,7 +1072,6 @@ async function loadStats() {
 }
 
 
-
 // ================================
 // GESTION DE L'AFFICHAGE INDEX.HTML
 // ================================
@@ -1190,7 +1183,7 @@ async function toggleUserActive(userId, currentActive) {
 }
 
 // ================================
-// FONCTIONS POUR LA GESTION DES SALLES (ADMIN)
+// FONCTIONS pour voir les détails d'une salle (admin)
 // ================================
 function viewRoomDetails(roomId) {
     if (!currentToken || currentUser.role !== 'admin') return;
@@ -1368,7 +1361,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initThemeSystem();
 });
 
-//  Backup  aussi au chargement de la fenêtre
+//  Backup aussi au chargement de la fenêtre
 window.addEventListener('load', function() {
     console.log("Page complètement chargée");
     // Réessayer si pas déjà fait
@@ -1388,7 +1381,6 @@ if (document.readyState === 'loading') {
 // ================================
 // Fonction pour ajouter un utilisateur (ADMIN)
 // ================================
-
 
 async function addUser(event) {
     event.preventDefault(); // Empêcher le rechargement de la page
@@ -1809,12 +1801,11 @@ async function loadOwnerRooms(containerId = 'rooms-list') {
 }
 
 
-
 // ================================
 // INITIALISATION CARTE
 // ================================
 function initializeMapForPage(rooms) {
-    console.log("🌍 Initialisation de la carte...");
+    console.log(" Initialisation de la carte...");
     
     const mapElement = document.getElementById('client-map');
     if (!mapElement) {
@@ -1899,13 +1890,13 @@ function initializeMapForPage(rooms) {
 }
 
 // ================================
-// FONCTIONS POUR LES AVIS (CLIENT)
+// FONCTIONS POUR CHARGER LES AVIS DU CLIENT ET AFFICHER LE FORMULAIRE D'AVIS
 // ================================
 
 // Charger les avis du client
 async function loadClientReviews() {
     if (!currentToken || currentUser?.role !== 'client') {
-        console.log('❌ Non connecté ou non client');
+        console.log(' Non connecté ou non client');
         return;
     }
     
@@ -1929,7 +1920,7 @@ async function loadClientReviews() {
         }
         
         const reviews = await res.json();
-        console.log('✅ Avis reçus:', reviews);
+        console.log(' Avis reçus:', reviews);
         
         if (!reviews.length) {
             container.innerHTML = `
@@ -1977,7 +1968,7 @@ async function loadClientReviews() {
         });
         
     } catch (err) {
-        console.error('❌ Erreur chargement avis:', err);
+        console.error(' Erreur chargement avis:', err);
         container.innerHTML = `
             <div class="error-state">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -2007,7 +1998,7 @@ async function showReviewForm() {
         if (!res.ok) throw new Error('Erreur réservations');
         const bookings = await res.json();
         
-        console.log('📅 Réservations:', bookings);
+        console.log(' Réservations:', bookings);
         
         // Charger les avis existants du client
         const reviewsRes = await fetch('/api/reviews/my', {
@@ -2015,7 +2006,7 @@ async function showReviewForm() {
         });
         
         const myReviews = reviewsRes.ok ? await reviewsRes.json() : [];
-        console.log('⭐ Avis existants:', myReviews);
+        console.log(' Avis existants:', myReviews);
         
         // Filtrer les réservations :
         // 1. Status 'confirmed'
@@ -2035,7 +2026,7 @@ async function showReviewForm() {
             return isConfirmed && !alreadyReviewed; // Vous pouvez retirer isPast pour tester
         });
         
-        console.log('✅ Réservations éligibles:', eligibleBookings);
+        console.log(' Réservations éligibles:', eligibleBookings);
         
         bookingSelect.innerHTML = '<option value="">Sélectionner une réservation</option>';
         
@@ -2092,7 +2083,7 @@ async function submitReview() {
         alert('Veuillez sélectionner une réservation et donner une note (1-5 étoiles)');
         return;
     }
-    
+     //fetch : est une API JavaScript pour faire des requêtes HTTP. Ici, on l'utilise pour envoyer les données de l'avis au backend.
     try {
         const res = await fetch('/api/reviews', {
             method: 'POST',
@@ -2113,7 +2104,7 @@ async function submitReview() {
             throw new Error(data.error || 'Erreur lors de l\'envoi');
         }
         
-        alert('✅ Avis soumis avec succès ! Il sera visible après modération.');
+        alert(' Avis soumis avec succès ! Il sera visible après modération.');
         cancelReview();
         loadClientReviews();
         
@@ -2425,7 +2416,7 @@ async function approveReview(reviewId) {
         });
         
         if (res.ok) {
-            alert('✅ Avis approuvé !');
+            alert(' Avis approuvé !');
             loadReviews();
         }
     } catch (err) {
@@ -2467,12 +2458,12 @@ async function deleteReview(reviewId) {
         });
         
         if (res.ok) {
-            alert('✅ Avis supprimé !');
+            alert(' Avis supprimé !');
             loadReviews();
         }
     } catch (err) {
         console.error('Erreur suppression avis:', err);
-        alert('❌ Erreur lors de la suppression');
+        alert(' Erreur lors de la suppression');
     }
 }
 

@@ -1,6 +1,6 @@
-// public/client-map.js
+// public/client-map.js pour la carte côté client et visieur(acceuil)
 
-console.log('🗺️ client-map.js chargé');
+console.log(' client-map.js chargé');
 
 let clientMap = null;
 let roomMarkers = [];
@@ -13,18 +13,18 @@ function initClientMap(rooms = []) {
     const mapContainer = document.getElementById('client-map');
 
     if (!mapContainer) {
-        console.warn('❌ #client-map introuvable');
+        console.warn(' #client-map introuvable');
         return;
     }
 
     if (typeof L === 'undefined') {
-        console.error('❌ Leaflet non chargé');
+        console.error(' Leaflet non chargé');
         return;
     }
 
-    // 1️⃣ Initialisation UNE SEULE FOIS
+
     if (!clientMap) {
-        console.log('🆕 Création de la carte client');
+        console.log(' Création de la carte client');
 
         clientMap = L.map('client-map').setView([36.7525, 3.0420], 6);
 
@@ -34,13 +34,13 @@ function initClientMap(rooms = []) {
         }).addTo(clientMap);
     }
 
-    // 2️⃣ Nettoyer les anciens marqueurs
+    // enlever les anciens marqueurs
     roomMarkers.forEach(marker => {
         clientMap.removeLayer(marker);
     });
     roomMarkers = [];
 
-    // 3️⃣ Ajouter les nouveaux marqueurs
+    //  Ajouter les nouveaux marqueurs
     rooms.forEach(room => {
         if (!room.latitude || !room.longitude) return;
 
@@ -55,7 +55,7 @@ function initClientMap(rooms = []) {
         roomMarkers.push(marker);
     });
 
-    console.log(`✅ Carte mise à jour : ${roomMarkers.length} marqueurs`);
+    console.log(` Carte mise à jour : ${roomMarkers.length} marqueurs`);
 }
 
 // rendre globale

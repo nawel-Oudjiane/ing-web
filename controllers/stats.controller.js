@@ -2,7 +2,7 @@
 // controllers/stats.controller.js
 const db = require('../config/database');
 
-// Route principale qui s'adapte au rôle
+//fonction pour récupérer les statistiques globales et par propriétaire
 exports.getStats = async (req, res) => {
     try {
         if (req.user.role === 'admin') {

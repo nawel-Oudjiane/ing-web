@@ -45,7 +45,7 @@
 
 
     <!-- CONTENU -->
-    <div class="container">
+<div class="container">
         <!-- HERO -->
         <section id="client-hero" class="hero">
             <h1>Dashboard Client</h1>
@@ -56,10 +56,10 @@
         </section>
 
         <!-- recherche salle -->
-<section id="client-search"class="section-card">
-    <h2><i class="fas fa-search"></i> Rechercher une salle</h2>
-    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
-        <input type="text" id="search-room" class="form-control" placeholder="Nom de la salle..." 
+       <section id="client-search"class="section-card">
+          <h2><i class="fas fa-search"></i> Rechercher une salle</h2>
+           <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+             <input type="text" id="search-room" class="form-control" placeholder="Nom de la salle..." 
                style="flex: 1; min-width: 200px;">
         <select id="city-filter" class="form-control" style="width: auto;">
             <option value="">Toutes les villes</option>
@@ -67,26 +67,26 @@
         <button class="btn btn-primary" onclick="filterRooms()">
             <i class="fas fa-search"></i> Rechercher
         </button>
-    </div>
-</section>
+        </div>
+      </section>
 
         <!-- Salles disponibles -->
-    <section id="client-salles">
+       <section id="client-salles">
             <h2><i class="fas fa-door-open"></i> Salles disponibles</h2>
             <div id="rooms-list" class="rooms-grid">
                 <div class="loading">Chargement des salles...</div>
             </div>
-    </section>
+       </section>
 
         <!--MAPPPP-->
 
-    <section  id="client-map-section">
+       <section  id="client-map-section">
             <h2><i class="fas fa-map-marked-alt"></i> Carte des salles disponibles</h2>
             <div id="client-map" style="height: 500px; border-radius: 12px; border: 2px solid #e0e0e0; margin-top: 1rem;"></div>
-    </section>
+       </section>
 
         <!-- Mes réservations -->
-    <section id="client-section">
+       <section id="client-section">
             <h2><i class="fas fa-calendar-check"></i> Mes Réservations</h2>
             <div id="my-bookings">
                 Chargement de vos réservations...
@@ -108,55 +108,56 @@
                  </div>
               </div>
           </div>
-     </div>
-            <!--    -------------------------------->
 
-    </section>
 
-    <!-- AVISss -->
-
+ <!-- AVISss -->
     <section class="section-card"id="client-reviews">
-    <h2><i class="fas fa-star"></i> Mes Avis</h2>
-    <div id="my-reviews">
-        Chargement de vos avis...
-    </div>
+         <h2><i class="fas fa-star"></i> Mes Avis</h2>
+            <div id="my-reviews">
+               Chargement de vos avis...
+           </div>
     
     <!-- Formulaire pour laisser un avis -->
-    <div id="add-review-form" style="display: none; margin-top: 2rem;">
-        <h3><i class="fas fa-comment-medical"></i> Laisser un avis</h3>
-        <div class="form-group">
-            <label>Réservation:</label>
-            <select id="review-booking" class="form-control">
+      <div id="add-review-form" style="display: none; margin-top: 2rem;">
+          <h3><i class="fas fa-comment-medical"></i> Laisser un avis</h3>
+            <div class="form-group">
+               <label>Réservation:</label>
+              <select id="review-booking" class="form-control">
                 <option value="">Sélectionner une réservation</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Note (1-5 étoiles):</label>
-            <div class="rating-stars" style="font-size: 24px; color: #ffc107;">
-                <span onclick="setRating(1)">☆</span>
-                <span onclick="setRating(2)">☆</span>
-                <span onclick="setRating(3)">☆</span>
-                <span onclick="setRating(4)">☆</span>
-                <span onclick="setRating(5)">☆</span>
-            </div>
-            <input type="hidden" id="review-rating" value="0">
-        </div>
-        <div class="form-group">
-            <label>Commentaire:</label>
-            <textarea id="review-comment" class="form-control" rows="3" placeholder="Partagez votre expérience..."></textarea>
-        </div>
-        <div class="form-actions">
-            <button class="btn btn-primary" onclick="submitReview()">
-                <i class="fas fa-paper-plane"></i> Envoyer l'avis
-            </button>
-            <button class="btn btn-secondary" onclick="cancelReview()">
-                <i class="fas fa-times"></i> Annuler
-            </button>
-        </div>
-    </div>
-</section>
+              </select>
+          </div>
+          
+          <div class="form-group">
+             <label>Note (1-5 étoiles):</label>
+             <div class="rating-stars" style="font-size: 24px; color: #ffc107;">
+                 <span onclick="setRating(1)">☆</span>
+                 <span onclick="setRating(2)">☆</span>
+                 <span onclick="setRating(3)">☆</span>
+                 <span onclick="setRating(4)">☆</span>
+                 <span onclick="setRating(5)">☆</span>
+             </div>
+               <input type="hidden" id="review-rating" value="0">
+           </div>
+           <div class="form-group">
+              <label>Commentaire:</label>
+              <textarea id="review-comment" class="form-control" rows="3" placeholder="Partagez votre expérience..."></textarea>
+           </div>
+            <div class="form-actions">
+                 <button class="btn btn-primary" onclick="submitReview()">
+                    <i class="fas fa-paper-plane"></i> Envoyer l'avis
+                    </button>
+                    <button class="btn btn-secondary" onclick="cancelReview()">
+                         <i class="fas fa-times"></i> Annuler
+                    </button>
+             </div>
+     </div>
+  </section>
+</div>
+        
 
-       
+   
+
+   
 
 
     <footer>

@@ -13,7 +13,7 @@ router.get('/', authMiddleware, (req, res) => {
         // Redirige vers la route owner
         return StatsController.getOwnerStats(req, res);
     } else {
-        // Pour les clients, retourne des stats basiques ou une erreur
+        // Pour les clients on retourne une erreur
         return res.status(403).json({ error: 'Accès non autorisé aux statistiques' });
     }
 });

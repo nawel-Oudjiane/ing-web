@@ -51,7 +51,7 @@ class User {
     }
     
     /**
-     * Trouve un utilisateur par son ID
+     * Trouve un utilisateur par son ID param: sert a recuperer les infos d'un user via son id
      * @param {number} id - ID de l'utilisateur
      * @returns {Promise<Object|null>} Utilisateur ou null
      */

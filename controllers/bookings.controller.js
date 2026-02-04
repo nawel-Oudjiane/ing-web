@@ -3,6 +3,8 @@
 
 const db = require('../config/database');
 
+//exports pour créer une réservation (CLIENT)============
+
 exports.create = async (req, res) => {
     try {
         const clientId = req.user.id;
@@ -48,7 +50,7 @@ exports.create = async (req, res) => {
         res.status(500).json({ error: 'Erreur réservation' });
     }
 };
-
+//fonction pour voir les réservation du (CLIENT) /  .getMybookings: sélectionne toutes les réservations associées à l'ID du client connecté
 exports.getMyBookings = async (req, res) => {
     try {
         const clientId = req.user.id;
@@ -69,7 +71,7 @@ exports.getMyBookings = async (req, res) => {
     }
 };
 
-
+//fonction pour annuler une réservation (CLIENT)===============
 exports.cancel = async (req, res) => {
     try {
         const { id } = req.params;
@@ -108,5 +110,120 @@ exports.cancel = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: 'Erreur annulation réservation' });
+    }
+};
+
+//fonction pour que l'admin puisse voir toutes les réservations
+// Pour le propriétaire : voir TOUTES les réservations de ses salles
+exports.getAllBookings = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        let query = '';
+        let params = [];
+
+        if (userRole === 'admin') {
+            // Admin voit TOUTES les réservations
+            query = `
+                SELECT b.*, 
+                       r.name AS room_name,
+                       r.owner_id,
+                       r.price_per_hour,
+                       u.full_name AS client_name,
+                       u.email AS client_email
+                FROM bookings b
+                JOIN rooms r ON r.id = b.room_id
+                JOIN users u ON u.id = b.client_id
+                ORDER BY b.start_time DESC
+            `;
+        } else if (userRole === 'owner') {
+            // Propriétaire voit seulement les réservations de SES salles
+            query = `
+                SELECT b.*, 
+                       r.name AS room_name,
+                       r.owner_id,
+                       r.price_per_hour,
+                       u.full_name AS client_name,
+                       u.email AS client_email
+                FROM bookings b
+                JOIN rooms r ON r.id = b.room_id
+                JOIN users u ON u.id = b.client_id
+                WHERE r.owner_id = $1
+                ORDER BY b.start_time DESC
+            `;
+            params = [userId];
+        } else {
+            // Client ne devrait pas accéder à cette route
+            return res.status(403).json({ error: 'Accès non autorisé' });
+        }
+
+        const result = await db.query(query, params);
+        res.json(result.rows);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erreur chargement des réservations' });
+    }
+};
+
+// Pour le propriétaire : changer le statut d'une réservation
+exports.updateBookingStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const userId = req.user.id;
+        const userRole = req.user.role;
+
+        // Vérifier que l'utilisateur est admin ou propriétaire de la salle
+        let query = '';
+        let params = [];
+
+        if (userRole === 'admin') {
+            query = 'SELECT * FROM bookings WHERE id = $1';
+            params = [id];
+        } else if (userRole === 'owner') {
+            query = `
+                SELECT b.* 
+                FROM bookings b
+                JOIN rooms r ON r.id = b.room_id
+                WHERE b.id = $1 AND r.owner_id = $2
+            `;
+            params = [id, userId];
+        } else {
+            return res.status(403).json({ error: 'Accès non autorisé' });
+        }
+
+        const bookingRes = await db.query(query, params);
+
+        if (bookingRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Réservation introuvable ou non autorisée' });
+        }
+
+        const booking = bookingRes.rows[0];
+        const now = new Date();
+        const startTime = new Date(booking.start_time);
+
+        // Validation supplémentaire si besoin
+        if (status === 'confirmed' && now >= startTime) {
+            return res.status(400).json({ 
+                error: 'Impossible de confirmer : la réservation a déjà commencé' 
+            });
+        }
+
+        // Mettre à jour le statut
+        await db.query(
+            'UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2',
+            [status, id]
+        );
+
+        res.json({ 
+            message: `Statut mis à jour : ${status}`,
+            booking_id: id
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Erreur mise à jour statut' });
     }
 };

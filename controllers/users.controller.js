@@ -1,6 +1,7 @@
 // controllers/users.controller.js
 const db = require('../config/database');
 
+//fonction pour récupérer tous les utilisateurs====================
 exports.getAll = async (req, res) => {
     try {
         console.log('Tentative de récupération des utilisateurs...');
@@ -18,7 +19,7 @@ exports.getAll = async (req, res) => {
     }
 };
 
-// AJOUTEZ CETTE FONCTION POUR VOIR UN UTILISATEUR
+// fonction pour récupérer un utilisateur par ID=====================
 exports.getOne = async (req, res) => {
     try {
         const { id } = req.params;
@@ -38,6 +39,7 @@ exports.getOne = async (req, res) => {
     }
 };
 
+//fonction pour mettre à jour le statut actif d'un utilisateur===========
 exports.updateStatus = async (req, res) => {
     try {
         const { id } = req.params;
@@ -66,7 +68,7 @@ exports.updateStatus = async (req, res) => {
     }
 };
 
-// AJOUTEZ CETTE FONCTION POUR SUPPRIMER UN UTILISATEUR
+//fonction pour supprimer un utilisateur=============================
 exports.delete = async (req, res) => {
     try {
         const { id } = req.params;
@@ -107,7 +109,7 @@ exports.delete = async (req, res) => {
         });
         
     } catch (err) {
-        console.error('ERREUR DÉTAILLÉE suppression utilisateur:', err);
+        console.error('ERREUR suppression utilisateur:', err);
         
         // Vérifier si c'est une erreur de contrainte de clé étrangère
         if (err.code === '23503') { // Code PostgreSQL pour violation de clé étrangère

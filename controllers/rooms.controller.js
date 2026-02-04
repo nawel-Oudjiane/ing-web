@@ -1,17 +1,17 @@
 // controllers/rooms.controller.js 
 const db = require('../config/database');
 
-// GET toutes les salles (avec filtre selon rôle)
+// GET toutes les salles (avec filtre selon rôle)========
 exports.getAll = async (req, res) => {
     try {
         let query = '';
         let params = [];
         
-        const user = req.user; // L'utilisateur peut être undefined (visiteur)
+        const user = req.user; // L'utilisateur peut être undefined (visiteur)<========
         
-        console.log(`🔍 Rôle utilisateur: ${user?.role || 'visiteur'}, ID: ${user?.id}`);
+        console.log(` Rôle utilisateur: ${user?.role || 'visiteur'}, ID: ${user?.id}`);
         
-        // 1. SI PROPRIÉTAIRE : seulement SES salles
+        // 1. SI PROPRIÉTAIRE : seulement SES salles===
         if (user && user.role === 'owner') {
             query = `
                 SELECT r.*, u.full_name as owner_name 
@@ -31,7 +31,7 @@ exports.getAll = async (req, res) => {
                 ORDER BY r.created_at DESC
             `;
         }
-        // 3. SI CLIENT ou VISITEUR : seulement les salles disponibles
+        // 3. SI CLIENT ou VISITEUR : seulement les salles disponibles===
         else {
             query = `
                 SELECT r.*, u.full_name as owner_name 
@@ -42,16 +42,16 @@ exports.getAll = async (req, res) => {
             `;
         }
         
-        console.log(`📝 Requête: ${query.substring(0, 100)}...`);
-        console.log(`📝 Paramètres: ${JSON.stringify(params)}`);
+        console.log(`Requête: ${query.substring(0, 100)}...`);
+        console.log(`Paramètres: ${JSON.stringify(params)}`);
         
         const result = await db.query(query, params);
         
-        console.log(`✅ ${result.rows.length} salles trouvées`);
+        console.log(` ${result.rows.length} salles trouvées`);
         
         res.json(result.rows);
     } catch (err) {
-        console.error('❌ Erreur getAll:', err);
+        console.error(' Erreur getAll:', err);
         res.status(500).json({ error: 'Erreur chargement salles' });
     }
 };
@@ -83,7 +83,7 @@ exports.getOne = async (req, res) => {
 
         res.json(room);
     } catch (err) {
-        console.error('❌ Erreur getOne:', err);
+        console.error('Erreur getOne:', err);
         res.status(500).json({ error: 'Erreur récupération salle' });
     }
 };
@@ -113,7 +113,7 @@ exports.create = async (req, res) => {
             return res.status(400).json({ error: 'Champs obligatoires manquants' });
         }
 
-        console.log(`➕ Création salle par propriétaire ${user.id}:`, { 
+        console.log(`Création salle par propriétaire ${user.id}:`, { 
             name, city, latitude, longitude 
         });
 
@@ -138,16 +138,16 @@ exports.create = async (req, res) => {
             ]
         );
 
-        console.log(`✅ Salle créée ID: ${result.rows[0].id}`);
+        console.log(`====>Salle créée ID: ${result.rows[0].id}`);
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error('❌ Erreur création:', err);
+        console.error('===>Erreur création:', err);
         res.status(500).json({ error: 'Erreur création salle' });
     }
 };
 
 // ------UPDATE
-// UPDATE - MODIFIEZ CETTE FONCTION
+// UPDATE pour modifier une salle (avec latitude/longitude)
 exports.update = async (req, res) => {
     try {
         const { id } = req.params;
@@ -173,9 +173,9 @@ exports.update = async (req, res) => {
         const { name, description, capacity, price_per_hour, city, address, latitude, longitude } = req.body;
 
         // DEBUG: Voir ce qui est envoyé
-        console.log(`🔄 Mise à jour salle ${id} par ${user.role} ${user.id}`);
-        console.log('📦 Données reçues:', req.body);
-        console.log('📍 Coordonnées:', { latitude, longitude });
+        console.log(` =======> Mise à jour salle ${id} par ${user.role} ${user.id}`);
+        console.log(' =======> Données reçues:', req.body);
+        console.log('======> Coordonnées:', { latitude, longitude });
 
         // Construire la requête SQL dynamiquement
         const updates = [];
@@ -229,7 +229,7 @@ exports.update = async (req, res) => {
             values.push(parseFloat(longitude));
             paramIndex++;
             
-            console.log(`📍 Coordonnées mises à jour: ${latitude}, ${longitude}`);
+            console.log(` Coordonnées mises à jour: ${latitude}, ${longitude}`);
         } else if (latitude !== undefined || longitude !== undefined) {
             // Si un seul des deux est fourni, c'est une erreur
             return res.status(400).json({ 
@@ -254,12 +254,12 @@ exports.update = async (req, res) => {
             RETURNING *
         `;
 
-        console.log('📝 Requête SQL:', query);
-        console.log('📝 Valeurs:', values);
+        console.log(' Requête SQL:', query);
+        console.log(' Valeurs:', values);
 
         const result = await db.query(query, values);
 
-        console.log(`✅ Salle ${id} mise à jour avec succès`);
+        console.log(` Salle ${id} mise à jour avec succès`);
         
         res.json({
             success: true,
@@ -267,12 +267,12 @@ exports.update = async (req, res) => {
             room: result.rows[0]
         });
     } catch (err) {
-        console.error('❌ Erreur update:', err);
+        console.error(' Erreur update:', err);
         res.status(500).json({ error: 'Erreur modification salle', details: err.message });
     }
 };
 
-// DELETE
+// DELETE :supprimer une salle
 exports.remove = async (req, res) => {
     try {
         const { id } = req.params;
@@ -296,10 +296,10 @@ exports.remove = async (req, res) => {
 
         await db.query('DELETE FROM rooms WHERE id = $1', [id]);
         
-        console.log(`🗑️ Salle ${id} supprimée par ${user.role} ${user.id}`);
+        console.log(` Salle ${id} supprimée par ${user.role} ${user.id}`);
         res.json({ message: 'Salle supprimée' });
     } catch (err) {
-        console.error('❌ Erreur delete:', err);
+        console.error(' Erreur delete:', err);
         res.status(500).json({ error: 'Erreur suppression salle' });
     }
 };

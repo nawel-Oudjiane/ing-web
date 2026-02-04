@@ -2,17 +2,17 @@
    VARIABLES ET RÉINITIALISATION
    ================================ */
 :root {
-    /* NOUVELLES COULEURS MARRON/CHOCOLAT */
-    --primary: #8B4513; /* Marron chocolat */
-    --primary-dark: #6B3310; /* Marron chocolat foncé */
-    --secondary: #D2691E; /* Chocolat plus clair */
-    --danger: #B22222; /* Rouge brique */
-    --success: #228B22; /* Vert forêt */
-    --warning: #FF8C00; /* Orange foncé */
-    --dark: #2C1810; /* Marron très foncé */
-    --light: #FFF8F0; /* Beige très clair */
-    --gray: #8B7355; /* Marron gris */
-    --gray-light: #E8DFD5; /* Beige gris clair */
+    
+    --primary: #8B4513; 
+    --primary-dark: #6B3310; 
+    --secondary: #b45d1fc3; 
+    --danger: #B22222; 
+    --success: #228B22; 
+    --warning: #FF8C00; 
+    --dark: #2C1810; 
+    --light: #FFF8F0; 
+    --gray: #8B7355; 
+    --gray-light: #E8DFD5; 
     --border-radius: 12px;
     --shadow: 0 4px 20px rgba(139, 69, 19, 0.1);
     --shadow-hover: 0 8px 30px rgba(139, 69, 19, 0.15);
@@ -38,10 +38,7 @@ body {
 }
 
 /* ================================
-   NAVBAR UNIFIÉE - MARRON CHOCOLAT
-   ================================ */
-/* ================================
-   NAVBAR UNIFIÉE - MARRON CHOCOLAT RAFFINÉ
+   NAVBAR UNIFIÉE
    ================================ */
 .navbar {
     background: linear-gradient(135deg, #5D4037 0%, #8D6E63 100%);
@@ -113,9 +110,7 @@ body {
     padding: 0 2rem;
 }
 
-/* ================================
-   SECTION HERO (Pour toutes les pages)
-   ================================ */
+
 .hero {
     background: linear-gradient(135deg, #FFFFFF 0%, #FEFCF8 100%);
     padding: 3rem;
@@ -532,7 +527,7 @@ button {
 }
 
 .btn-secondary:hover {
-    background: #B35714;
+    background: #b35614b6;
     transform: translateY(-2px);
 }
 
@@ -854,7 +849,7 @@ footer {
     text-align: center;
     padding: 2rem;
     color: var(--gray);
-    background: white;
+    background: rgba(149, 121, 89, 0.527);
     margin-top: 3rem;
     border-top: 1px solid var(--gray-light);
 }
@@ -996,8 +991,8 @@ footer {
    ================================ */
 
 [data-theme="dark"] {
-    /* NOUVELLES COULEURS MARRON POUR MODE SOMBRE */
-    --primary: #D2691E;
+    
+    --primary: #b65f21b9;
     --primary-dark: #B35714;
     --secondary: #CD853F;
     --dark: #F5E9DC;
@@ -1017,7 +1012,7 @@ footer {
 [data-theme="dark"] .status-card,
 [data-theme="dark"] .modal-content {
     background: #3E2723 !important;
-    color: #F5E9DC !important;
+    color: #e5dacf !important;
     border-color: #5D4037 !important;
 }
 
@@ -1033,11 +1028,11 @@ footer {
     background: linear-gradient(135deg, #5D4037 0%, #8B4513 100%) !important;
 }
 
-/* Bouton thème - STYLE GARANTI */
+/* Bouton thème  */
 .theme-btn {
     background: rgba(212, 175, 55, 0.2) !important;
     border: 2px solid rgba(212, 175, 55, 0.4) !important;
-    color: #FFD700 !important;
+    color: #0d0d0d !important;
     width: 42px !important;
     height: 42px !important;
     border-radius: 50% !important;
@@ -1082,7 +1077,7 @@ body, .hero, section, .auth-card, .room-card {
 
 /* ===== FORMULAIRE D'AJOUT ===== */
 .add-user-form {
-    background: white;
+    background: rgba(226, 199, 182, 0.36);
     padding: 25px;
     border-radius: 10px;
     margin-top: 30px;
@@ -1135,7 +1130,7 @@ body, .hero, section, .auth-card, .room-card {
     font-size: 1rem;
     box-sizing: border-box;
     transition: border-color 0.3s;
-    background: white;
+    background: rgba(255, 255, 255, 0.4);
 }
 
 .form-group input:focus,
@@ -1192,7 +1187,7 @@ body, .hero, section, .auth-card, .room-card {
 /* Message de succès */
 .success-message {
     background: #D4EDDA;
-    color: #155724;
+    color: #18712d;
     padding: 12px 15px;
     border-radius: 5px;
     margin-bottom: 20px;
@@ -1319,8 +1314,61 @@ body, .hero, section, .auth-card, .room-card {
     to { opacity: 1; transform: translateY(0); }
 }
 
+
+
+
+/* Styles pour les cartes Leaflet */
+
+#client-map, #owner-map {
+    width: 100%;
+    height: 500px !important;
+    min-height: 500px;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    z-index: 1;
+    background: #f8f9fa;
+    position: relative;
+}
+
+.leaflet-container {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 10px;
+}
+
+/* États */
+.map-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: var(--gray);
+    padding: 2rem;
+    text-align: center;
+}
+
+.map-empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+
+
+
+
+
+
+
 /* ================================
-   AMÉLIORATIONS VISUELLES SUPPLEMENTAIRES
+   AMÉLIORATIONS VISUELLES 
    ================================ */
 
 /* Effet de brillance sur les boutons */

@@ -2,7 +2,7 @@
 const db = require('../config/database');
 
 class Room {
-    // Récupérer toutes les salles
+    // fonction pour Récupérer toutes les salles
     static async findAll() {
         const result = await db.query('SELECT * FROM rooms ORDER BY created_at DESC');
         return result.rows;

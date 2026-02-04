@@ -1,30 +1,30 @@
-// public/owner-map.js - VERSION CORRIGÉE ET COMPLÈTE
-console.log("🗺️ Chargement de owner-map.js");
+// public/owner-map.js - pour la gestion de la carte sur la page propriétaire
+console.log(" Chargement de owner-map.js");
 
 // Variables globales accessibles partout
 window.ownerMap = null;
 window.locationMarker = null;
 
 function initOwnerMap() {
-    console.log("🔄 Initialisation carte propriétaire...");
+    console.log(" Initialisation carte propriétaire...");
     
     // 1. Vérifier si l'élément existe
     const mapElement = document.getElementById('owner-map');
     if (!mapElement) {
-        console.warn("⚠️ #owner-map non trouvé (peut être normal si pas sur page propriétaire)");
+        console.warn(" #owner-map non trouvé (peut être normal si pas sur page propriétaire)");
         return false;
     }
     
     // 2. Vérifier si Leaflet est chargé
     if (typeof L === 'undefined') {
-        console.error("❌ ERREUR: Leaflet n'est pas chargé !");
+        console.error("ERREUR: Leaflet n'est pas chargé !");
         showMapError("Bibliothèque de carte non chargée. Rechargez la page.");
         return false;
     }
     
     // 3. Vérifier si MapUtils existe
     if (typeof MapUtils === 'undefined' || typeof MapUtils.initMap !== 'function') {
-        console.error("❌ ERREUR: MapUtils non chargé !");
+        console.error(" ERREUR: MapUtils non chargé !");
         showMapError("Utilitaires carte non chargés. Vérifiez map-utils.js");
         return false;
     }
@@ -34,7 +34,7 @@ function initOwnerMap() {
         window.ownerMap = MapUtils.initMap('owner-map', [28.0339, 1.6596], 5);
         
         if (!window.ownerMap) {
-            console.error("❌ Échec création carte");
+            console.error(" Échec création carte");
             return false;
         }
         
@@ -43,7 +43,7 @@ function initOwnerMap() {
             const lat = e.latlng.lat;
             const lng = e.latlng.lng;
             
-            console.log(`📍 Position sélectionnée: ${lat}, ${lng}`);
+            console.log(` Position sélectionnée: ${lat}, ${lng}`);
             
             // Mettre à jour les champs HTML
             updateCoordinateFields(lat, lng);
@@ -55,11 +55,11 @@ function initOwnerMap() {
             // getAddressFromCoords(lat, lng);
         });
         
-        console.log("✅ Carte propriétaire prête !");
+        console.log(" Carte propriétaire prête !");
         return true;
         
     } catch (error) {
-        console.error("❌ Erreur initialisation carte:", error);
+        console.error(" Erreur initialisation carte:", error);
         showMapError(`Erreur: ${error.message}`);
         return false;
     }
@@ -96,7 +96,7 @@ function updateLocationMarker(lat, lng) {
 function searchAddress() {
     const searchInput = document.getElementById('address-search');
     if (!searchInput) {
-        console.error("❌ Champ #address-search non trouvé");
+        console.error("Champ #address-search non trouvé");
         return;
     }
     
@@ -107,7 +107,7 @@ function searchAddress() {
         return;
     }
     
-    console.log(`🔍 Recherche d'adresse: "${query}"`);
+    console.log(` Recherche d'adresse: "${query}"`);
     
     // Afficher un indicateur de chargement
     const searchBtn = document.querySelector('[onclick="searchAddress()"]');
@@ -126,7 +126,7 @@ function searchAddress() {
             .then(res => res.json())
             .then(handleAddressSearchResult)
             .catch(error => {
-                console.error("❌ Erreur recherche:", error);
+                console.error(" Erreur recherche:", error);
                 alert('Erreur lors de la recherche d\'adresse');
             })
             .finally(() => {
@@ -149,7 +149,7 @@ function handleAddressSearchResult(data) {
     const lat = parseFloat(result.lat);
     const lng = parseFloat(result.lon);
     
-    console.log(`✅ Adresse trouvée: ${result.display_name}`);
+    console.log(`Adresse trouvée: ${result.display_name}`);
     
     // Centrer la carte
     if (window.ownerMap) {
@@ -181,7 +181,7 @@ function autoFillCity(geocodeResult) {
         const city = address.city || address.town || address.village || address.municipality || '';
         if (city) {
             cityField.value = city;
-            console.log(`🏙️ Ville auto-remplie: ${city}`);
+            console.log(` Ville auto-remplie: ${city}`);
         }
     }
 }

@@ -1,10 +1,10 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');//bibliothèque pour créer et vérifier les tokens JWT,jwt: JSON Web Token, est un standard ouvert (RFC 7519) qui définit un format compact et autonome pour transmettre des informations de manière sécurisée entre des parties sous forme d'objet JSON.
+const bcrypt = require('bcryptjs');//bibliothèque pour le hachage des mots de passe
 
 const authController = {
 
-//inscription d'un utilisateur
+//fonction pour l'inscription d'un utilisateur (CLIENT OU OWNER)================
   async register(req, res) {
     try {
       const { email, password, full_name = '', role = 'client' } = req.body;
@@ -23,7 +23,7 @@ const authController = {
     }
   },
 
-  // connexion d'un utilisateur
+  // connexion d'un utilisateur =================
 async login(req, res) {
   console.log(' Login appelé avec:', req.body?.email);
 
@@ -36,7 +36,7 @@ async login(req, res) {
       return res.status(401).json({ error: 'Email ou mot de passe incorrect' });
     }
 
-    // 🔐 VÉRIFICATION STATUT COMPTE (AJOUT UNIQUE)
+    //  VÉRIFICATION STATUT COMPTE (si désactivé, refuser la connexion)============
     if (user.active === false) {
       return res.status(403).json({
         error: 'Votre compte a été désactivé par un administrateur'

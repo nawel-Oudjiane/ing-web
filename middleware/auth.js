@@ -30,7 +30,7 @@ const verifyTokenAdmin = (req, res, next) => {
     });
 };
 
-// Middleware spécifique : vérifie que c'est un owner
+//  middleware vérifie que c'est un owner
 const verifyTokenOwner = (req, res, next) => {
     authMiddleware(req, res, () => {
         if (req.user.role !== 'owner') {
@@ -40,7 +40,7 @@ const verifyTokenOwner = (req, res, next) => {
     });
 };
 
-// Middleware spécifique : vérifie que c'est un client
+// Middleware pour vérifie que c'est un client
 const verifyTokenClient = (req, res, next) => {
     authMiddleware(req, res, () => {
         if (req.user.role !== 'client') {

@@ -1,12 +1,12 @@
 //ce middleware permet de valider les données envoyées par le client avant de les traiter dans les contrôleurs.
-// Il utilise la bibliothèque Joi pour définir des schémas de validation pour différentes entités comme les utilisateurs, les chambres et les réservations.``
+// Il utilise la bibliothèque express-validator pour définir des schémas de validation pour différentes entités comme les utilisateurs, les chambres et les réservations.``
 //DANS QUEL BUT UTILISER CE MIDDLEWARE?
 //L'objectif est de s'assurer que les données reçues respectent les contraintes attendues (types, formats, valeurs autorisées) afin d'éviter les erreurs et les incohérences dans la base de données.
 
 // middleware/validate.js
 const { body, validationResult } = require('express-validator');
 
-// Middleware de validation général
+// Middleware pour gérer les erreurs de validation
 const validate = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -40,7 +40,7 @@ const validateLogin = [
     validate
 ];
 
-// Validation pour les réservations (optionnel)
+// Validation pour les réservations 
 const validateBooking = [
     body('room_id')
         .isInt().withMessage('ID de salle invalide'),

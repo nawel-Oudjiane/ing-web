@@ -6,29 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Propriétaire</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="style-map.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 </head>
 <body>
 
     <nav class="navbar">
-        <div class="logo">
-            <i class="fas fa-building"></i>
-            <span>ReserveURroom</span>
-        </div>
-        <div class="nav-links">
-            <a href="dashboard-owner.html"><i class="fas fa-home"></i> Accueil</a>
-            <button id="theme-toggle" class="theme-btn" title="Changer le thème">
-                <i class="fas fa-moon"></i>
-            </button>
-            <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-        </div>
-    </nav>
+    <div class="logo">
+        <i class="fas fa-building"></i>
+        <span>ReserveURroom</span>
+    </div>
+    <div class="nav-links">
+        <a href="#owner-hero"><i class="fas fa-home"></i> Accueil</a>
+        <a href="#owner-stats"><i class="fas fa-chart-bar"></i> Statistiques</a>
+        <a href="#owner-add-room"><i class="fas fa-plus-circle"></i> Ajouter Salle</a>
+        <a href="#owner-rooms-list-section"><i class="fas fa-door-open"></i> Mes Salles</a>
+        <a href="#owner-bookings"><i class="fas fa-calendar-check"></i> Réservations</a>
+        <a href="#owner-reviews-section"><i class="fas fa-star"></i> Avis Reçus</a>
+        <button id="theme-toggle" class="theme-btn" title="Changer le thème">
+            <i class="fas fa-moon"></i>
+        </button>
+        <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
+    </div>
+</nav>
 
-    <div class="container">
+<div class="container">
         <!-- HERO -->
-        <section class="hero">
+        <section id="owner-hero" class="hero">
             <h1>Dashboard Propriétaire</h1>
             <p class="subtitle">Gérez vos salles et consultez les réservations</p>
             <div id="owner-welcome" class="status-card">
@@ -37,7 +41,7 @@
         </section>
 
         <!-- STATISTIQUES -->
-        <section>
+        <section id="owner-stats">
             <h2><i class="fas fa-chart-bar"></i> Mes Statistiques</h2>
             <div class="stats-grid">
                 <div class="stat-card">
@@ -59,7 +63,7 @@
         </section>
 
         <!-- AJOUTER UNE SALLE -->
-        <section id="owner-section" class="section-card">
+        <section id="owner-add-room" class="section-card">
             <h2><i class="fas fa-plus-circle"></i> Ajouter une Salle</h2>
             
             <div class="form-group">
@@ -115,7 +119,7 @@
         </section>
 
         <!-- MES SALLES -->
-        <section class="section-card">
+        <section id="owner-rooms-list-section"class="section-card">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                 <h2><i class="fas fa-door-open"></i> Mes Salles</h2>
                 <button class="btn btn-small btn-primary" onclick="loadOwnerRooms('owner-rooms-list')">
@@ -157,9 +161,20 @@
             </div>
         </section>
 
+              <!-- RÉSERVATIONS -->
+   <section id="owner-bookings" class="section-card">
+      <h2><i class="fas fa-calendar-check"></i> Réservations de mes salles</h2>
+     <button class="btn btn-primary" onclick="loadOwnerBookings()">
+        <i class="fas fa-sync-alt"></i> Voir les réservations
+     </button>
+       <div id="owner-bookings-list" style="margin-top: 1.5rem;">
+        
+        </div>
+  </section>
+
         <!-- AVIS -->
-        <!--  remplacez la section avis -->
-<section class="section-card">
+       
+  <section id="owner-reviews-section" class="section-card">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
         <h2><i class="fas fa-star"></i> Avis reçus</h2>
         <button class="btn btn-small btn-primary" onclick="loadOwnerReviews()">
@@ -202,9 +217,16 @@
     <div id="owner-reviews" class="reviews-container">
         Chargement des avis...
     </div>
-</section>
 
-    </div>
+  </section>
+
+   
+</div>
+
+    
+
+
+
 
     <footer>
         <p>Plateforme de Réservation de Salles</p>
@@ -234,7 +256,7 @@
 
                 const rooms = await res.json();
 
-                // 🔒 Filtrage des salles de ce propriétaire uniquement
+                //  Filtrage des salles de ce propriétaire uniquement
                 const ownerRooms = rooms.filter(room => room.owner_id === currentUser.id);
 
                 const container = document.getElementById(containerId);
@@ -311,9 +333,7 @@
             }
         }
 
-        // -----------------------------
-        // LANCER AU CHARGEMENT QUAND currentUser EST DÉFINI
-        // -----------------------------
+        
         document.addEventListener('DOMContentLoaded', () => {
             if (currentUser) {
                 initOwnerDashboard();
@@ -322,6 +342,181 @@
                 document.addEventListener('userReady', initOwnerDashboard);
             }
         });
+
+
+        
+// fonction pour CHARGER LES RÉSERVATIONS DES SALLES DU PROPRIÉTAIRE======
+// -----------------------------
+async function loadOwnerBookings() {
+    try {
+        console.log('Chargement des réservations...');
+        
+        const res = await fetch('/api/bookings', {
+            headers: { Authorization: `Bearer ${currentToken}` }
+        });
+        
+        console.log('Status:', res.status);
+        
+        if (res.status === 403) {
+            document.getElementById('owner-bookings-list').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-ban"></i>
+                    <p>Accès non autorisé</p>
+                    <p><small>Seuls les propriétaires peuvent voir cette section</small></p>
+                </div>
+            `;
+            return;
+        }
+        
+        if (!res.ok) {
+            throw new Error(`Erreur ${res.status}: ${res.statusText}`);
+        }
+        
+        const bookings = await res.json();
+        console.log('Réservations reçues:', bookings);
+        
+        // Afficher les réservations
+        const container = document.getElementById('owner-bookings-list');
+        
+        if (!bookings || bookings.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times"></i>
+                    <p>Aucune réservation pour vos salles</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = bookings.map(booking => {
+            const startDate = new Date(booking.start_time).toLocaleString('fr-FR');
+            const endDate = new Date(booking.end_time).toLocaleString('fr-FR');
+            const createdDate = new Date(booking.created_at).toLocaleDateString('fr-FR');
+            
+            // Calculer le prix total si non présent
+            let totalPrice = booking.total_price;
+            if (!totalPrice && booking.price_per_hour) {
+                const hours = Math.ceil((new Date(booking.end_time) - new Date(booking.start_time)) / (1000 * 60 * 60));
+                totalPrice = hours * booking.price_per_hour;
+            }
+            
+            // Couleurs selon le statut
+            let statusColor = '#ffc107'; // pending = orange
+            let statusText = 'En attente';
+            
+            if (booking.status === 'confirmed') {
+                statusColor = '#28a745'; // confirmed = vert
+                statusText = 'Confirmée';
+            } else if (booking.status === 'cancelled') {
+                statusColor = '#dc3545'; // cancelled = rouge
+                statusText = 'Annulée';
+            }
+            
+            return `
+                <div class="booking-card" style="
+                    margin-bottom: 1rem; 
+                    padding: 1.5rem; 
+                    border: 1px solid #e0e0e0; 
+                    border-radius: 8px;
+                    background: white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+                ">
+                    <h4>${booking.room_name || 'Salle'} - Réservation #${booking.id}</h4>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <p><i class="fas fa-user"></i> <strong>Client:</strong></p>
+                            <p>${booking.client_name || 'Non spécifié'}</p>
+                            <p style="font-size: 0.9rem; color: #666;">${booking.client_email || ''}</p>
+                        </div>
+                        
+                        <div>
+                            <p><i class="fas fa-calendar"></i> <strong>Dates:</strong></p>
+                            <p>Début: ${startDate}</p>
+                            <p>Fin: ${endDate}</p>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                        <p><i class="fas fa-money-bill-wave"></i> <strong>Prix:</strong> ${totalPrice || '?'} Da</p>
+                        <p><i class="fas fa-comment"></i> <strong>Demande:</strong> ${booking.special_requests || 'Aucune'}</p>
+                        <p><i class="fas fa-calendar-plus"></i> <strong>Créée le:</strong> ${createdDate}</p>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="
+                            padding: 0.3rem 0.8rem;
+                            border-radius: 20px;
+                            font-weight: bold;
+                            background: ${statusColor};
+                            color: white;
+                        ">
+                            ${statusText}
+                        </span>
+                        
+                        ${booking.status === 'pending' ? `
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn btn-small btn-success" onclick="confirmBooking(${booking.id})">
+                                    <i class="fas fa-check"></i> Confirmer
+                                </button>
+                                <button class="btn btn-small btn-danger" onclick="cancelBooking(${booking.id})">
+                                    <i class="fas fa-times"></i> Refuser
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Erreur loadOwnerBookings:', error);
+        document.getElementById('owner-bookings-list').innerHTML = `
+            <div class="error-state">
+                <p><strong>Erreur:</strong> ${error.message}</p>
+                <p><small>Vérifie que la route /api/bookings existe</small></p>
+            </div>
+        `;
+    }
+}
+
+// Fonctions pour gérer les statuts
+async function confirmBooking(bookingId) {
+    if (confirm('Confirmer cette réservation ?')) {
+        await updateBookingStatus(bookingId, 'confirmed');
+    }
+}
+
+async function cancelBooking(bookingId) {
+    if (confirm('Refuser cette réservation ?')) {
+        await updateBookingStatus(bookingId, 'cancelled');
+    }
+}
+
+async function updateBookingStatus(bookingId, status) {
+    try {
+        const res = await fetch(`/api/bookings/${bookingId}/status`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ status: status })
+        });
+        
+        if (!res.ok) {
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Erreur');
+        }
+        
+        alert(`Réservation ${status === 'confirmed' ? 'confirmée' : 'refusée'} !`);
+        loadOwnerBookings(); // Recharger la liste
+        
+    } catch (error) {
+        console.error('Erreur updateBookingStatus:', error);
+        alert('Erreur : ' + error.message);
+    }
+}
     </script>
 </body>
 </html>

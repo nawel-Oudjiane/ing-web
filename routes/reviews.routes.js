@@ -51,7 +51,7 @@ router.post('/', authMiddleware, async (req, res) => {
             return res.status(400).json({ error: 'Données invalides' });
         }
         
-        console.log(`📝 Création avis: client=${clientId}, booking=${booking_id}`);
+        console.log(`Création avis: client=${clientId}, booking=${booking_id}`);
         
         // Vérifier que la réservation existe et appartient au client
         const booking = await db.query(
@@ -99,7 +99,7 @@ router.post('/', authMiddleware, async (req, res) => {
             [booking_id, clientId, roomId, rating, comment || null]
         );
         
-        console.log(`✅ Avis créé: ID ${result.rows[0].id}`);
+        console.log(` Avis créé: ID ${result.rows[0].id}`);
         
         res.status(201).json({
             success: true,
@@ -108,7 +108,7 @@ router.post('/', authMiddleware, async (req, res) => {
         });
         
     } catch (err) {
-        console.error('❌ Erreur création avis:', err);
+        console.error('Erreur création avis:', err);
         res.status(500).json({ error: 'Erreur création avis', details: err.message });
     }
 });
